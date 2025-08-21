@@ -9,7 +9,7 @@ import androidx.compose.ui.window.application
 
 fun main() = application {
     Window(
-        title = "McViewer - 0.1.0",
+        title = "McViewer - 1.0.0",
         state = WindowState(position = WindowPosition.Aligned(Alignment.Center), width = 640.dp, height = 480.dp),
         onCloseRequest = ::exitApplication
     ) {
