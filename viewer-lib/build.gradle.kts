@@ -33,6 +33,8 @@ dependencies {
 
     implementation(libs.apache.commons.lang3)
     implementation(libs.apache.commons.io)
+
+    implementation(libs.viascom.nanoid)
 }
 
 tasks.test {

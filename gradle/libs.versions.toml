@@ -8,6 +8,8 @@ gson = "2.10.1"
 slf4j = "2.0.17"
 moshi = "1.15.1"
 coroutinesBom = "1.8.0"
+lifecycle = "2.9.2"
+navigation = "2.9.0-beta05"
 retrofitBom = "2.11.0"
 okhttpBom = "4.12.0"
 composePlugin = "1.8.2"
@@ -22,6 +24,9 @@ slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4
 kotlinx-coroutines-bom = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-bom", version.ref = "coroutinesBom" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android" }
+jetbrains-lifecycle-runtime = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
+jetbrains-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+jetbrains-navigation = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 squareup-retrofit-bom = { group = "com.squareup.retrofit2", name = "retrofit-bom", version.ref = "retrofitBom" }
 squareup-retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit" }
 squareup-retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson" }
@@ -43,6 +48,7 @@ vinceglb-filekit-dialogs-compose = { group = "io.github.vinceglb", name = "filek
 vinceglb-filekit-coil = { group = "io.github.vinceglb", name = "filekit-coil", version.ref = "fileKit" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
+viascom-nanoid = { group = "io.viascom.nanoid", name = "nanoid", version = "1.0.1" }
 
 [plugins]
 jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

@@ -31,6 +31,7 @@ dependencies {
     // (in a separate module for demo project and in testMain).
     // With compose.desktop.common you will also lose @Preview functionality
     implementation(compose.desktop.currentOs)
+    implementation(compose.components.resources)
 
     implementation(project(":viewer-lib"))
 
@@ -39,6 +40,10 @@ dependencies {
 
     implementation(libs.slf4j.api)
     implementation(libs.slf4j.simple)
+
+    implementation(libs.jetbrains.lifecycle.runtime)
+    implementation(libs.jetbrains.lifecycle.viewmodel)
+    implementation(libs.jetbrains.navigation)
 
     implementation(libs.vinceglb.filekit.core)
     implementation(libs.vinceglb.filekit.dialogs)
