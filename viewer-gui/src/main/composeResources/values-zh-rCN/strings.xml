@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">McViewer</string>
+
+    <string name="menu_file">文件</string>
+    <string name="menu_edit">编辑</string>
+    <string name="menu_about">关于</string>
+</resources>

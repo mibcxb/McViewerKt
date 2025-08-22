@@ -1,3 +1,3 @@
-package com.mibcxb.viewer.gui.screen
+package com.mibcxb.viewer.screen
 
 const val HOME_SCREEN = "HomeScreen"

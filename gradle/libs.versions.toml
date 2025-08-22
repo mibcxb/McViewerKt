@@ -27,6 +27,7 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 jetbrains-lifecycle-runtime = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
 jetbrains-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 jetbrains-navigation = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
+jetbrains-material3-adaptive = { group = "org.jetbrains.compose.material3.adaptive", name = "adaptive", version = "1.2.0-alpha05" }
 squareup-retrofit-bom = { group = "com.squareup.retrofit2", name = "retrofit-bom", version.ref = "retrofitBom" }
 squareup-retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit" }
 squareup-retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson" }

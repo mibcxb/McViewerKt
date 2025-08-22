@@ -6,7 +6,7 @@ pluginManagement {
                 password = "g3WW4mpD9Fyr"
             }
         }
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+//        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 //        google()
 //        gradlePluginPortal()
 //        mavenCentral()
@@ -27,7 +27,7 @@ dependencyResolutionManagement {
                 password = "g3WW4mpD9Fyr"
             }
         }
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+//        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 //        google()
 //        mavenCentral()
 //        mavenLocal()
@@ -35,4 +35,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "McViewerKt"
-include("viewer-lib", "viewer-gui")
+include("widget-lib")
+include("viewer-lib")
+include("viewer-gui")

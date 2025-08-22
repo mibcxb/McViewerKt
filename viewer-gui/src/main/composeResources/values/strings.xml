@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">McViewer</string>
+
+    <string name="menu_file">File</string>
+    <string name="menu_edit">Edit</string>
+    <string name="menu_about">About</string>
 </resources>

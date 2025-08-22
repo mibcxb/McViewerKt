@@ -7,3 +7,4 @@ plugins {
 }
 
 val mcViewerVersion by extra("1.0.0")
+val mcWidgetVersion by extra("1.0.0")

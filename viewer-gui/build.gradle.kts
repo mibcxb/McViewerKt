@@ -33,6 +33,7 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(compose.components.resources)
 
+    implementation(project(":widget-lib"))
     implementation(project(":viewer-lib"))
 
     implementation(platform(libs.kotlinx.coroutines.bom))
@@ -44,6 +45,7 @@ dependencies {
     implementation(libs.jetbrains.lifecycle.runtime)
     implementation(libs.jetbrains.lifecycle.viewmodel)
     implementation(libs.jetbrains.navigation)
+    implementation(libs.jetbrains.material3.adaptive)
 
     implementation(libs.vinceglb.filekit.core)
     implementation(libs.vinceglb.filekit.dialogs)

@@ -1,4 +1,4 @@
-package com.mibcxb.viewer.gui.vm
+package com.mibcxb.viewer.vm
 
 class HomeViewModel: AbsViewModel() {
 }
