@@ -15,4 +15,6 @@ interface AppDimen {
 
     val menuItemWidth: Dp
     val menuTextSize: TextUnit
+
+    val iconButtonSize: Dp
 }

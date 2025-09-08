@@ -23,6 +23,9 @@ class HomeViewModel : AbsViewModel() {
     private val _filePath = mutableStateOf("")
     val filePath: State<String> get() = _filePath
 
+    private val _previewImageStub = mutableStateOf<FileStub>(FileStubNone)
+    val previewImageStub: State<FileStub> get() = _previewImageStub
+
     private val _fileTypeList = mutableStateListOf(FileType.JPG, FileType.PNG)
     val fileTypeList: SnapshotStateList<FileType> get() = _fileTypeList
 
@@ -57,10 +60,8 @@ class HomeViewModel : AbsViewModel() {
         if (_selectedItem.value != item) {
             _selectedItem.value = item
         }
-        if (item.fileType == FileType.DIR && _fileStub.value.path != item.path) {
-            _fileStub.value = FileStubImpl(item.file).apply { refreshList(fileFilter) }
-            _filePath.value = item.path
-        }
+        changeFileStub(item.file)
+        changePreviewImageStub(item.file)
     }
 
     fun doubleClickTreeItem(item: FileItem) {
@@ -68,5 +69,53 @@ class HomeViewModel : AbsViewModel() {
         if (item.expanded) {
             item.refreshList(fileFilter)
         }
+    }
+
+    fun singleClickGridItem(stub: FileStub) {
+        changePreviewImageStub(stub.file)
+    }
+
+    fun doubleClickGridItem(stub: FileStub) {
+        if (_fileStub.value != stub) {
+            _fileStub.value = stub.apply { refreshList(fileFilter) }
+            _filePath.value = stub.path
+        }
+    }
+
+    fun changeFilePath(newPath: String) {
+        if (_filePath.value != newPath) {
+            _filePath.value = newPath
+        }
+    }
+
+    fun goToTargetPath() {
+        val newPath = _filePath.value
+        val newFile = File(newPath)
+        changeFileStub(newFile)
+    }
+
+    private fun changeFileStub(newFile: File) {
+        if (!newFile.exists() || !newFile.isDirectory) {
+            return
+        }
+        if (_fileStub.value.path == newFile.canonicalPath) {
+            return
+        }
+        _fileStub.value = FileStubImpl(newFile).apply { refreshList(fileFilter) }
+        _filePath.value = newFile.canonicalPath
+    }
+
+    private fun changePreviewImageStub(newFile: File) {
+        if (!newFile.exists() || !newFile.isFile) {
+            return
+        }
+        val extNames = fileTypeList.flatMap { it.extensions.toList() }
+        if (!extNames.contains(newFile.extension)) {
+            return
+        }
+        if (_previewImageStub.value.path == newFile.canonicalPath) {
+            return
+        }
+        _previewImageStub.value = FileStubImpl(newFile)
     }
 }

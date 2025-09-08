@@ -51,6 +51,8 @@ dependencies {
     implementation(libs.vinceglb.filekit.core)
     implementation(libs.vinceglb.filekit.dialogs)
     implementation(libs.vinceglb.filekit.dialogs.compose)
+
+    implementation(libs.coil.compose)
 }
 
 compose.desktop {

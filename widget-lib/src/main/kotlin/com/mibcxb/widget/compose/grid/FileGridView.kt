@@ -2,13 +2,15 @@ package com.mibcxb.widget.compose.grid
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -17,6 +19,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
@@ -55,27 +58,38 @@ fun FileGridView(
         horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = modifier
     ) {
         items(fileStub.subFiles, key = { it.path }) { fileItem ->
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.size(96.dp, 128.dp)
-                    .border(1.dp, Color.DarkGray, RoundedCornerShape(8.dp))
-                    .padding(8.dp)
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(96.dp, 144.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
+                    .combinedClickable(
+                        onClick = { onSingleClick(fileItem) },
+                        onDoubleClick = { onDoubleClick(fileItem) })
             ) {
-                val drawable = iconLoader(fileItem)
-                    ?: if (fileStub.fileType == FileType.DIR) Res.drawable.folder_normal else Res.drawable.file_unknown
-                Image(
-                    painterResource(drawable),
-                    fileItem.path,
-                    modifier = Modifier.padding(vertical = 8.dp).size(80.dp, 60.dp),
-                    contentScale = ContentScale.FillWidth
-                )
-                Text(
-                    fileItem.name,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().wrapContentHeight()
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(8.dp))
+                ) {
+                    val drawable = iconLoader(fileItem)
+                        ?: if (fileStub.fileType == FileType.DIR) Res.drawable.folder_normal else Res.drawable.file_unknown
+                    Image(
+                        painterResource(drawable),
+                        fileItem.path,
+                        modifier = Modifier.padding(vertical = 8.dp).size(80.dp, 60.dp),
+                        contentScale = ContentScale.FillWidth
+                    )
+                    Text(
+                        fileItem.name,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 8.dp).fillMaxWidth().weight(1f)
+                    )
+                }
             }
         }
     }

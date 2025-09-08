@@ -1,10 +1,12 @@
 package com.mibcxb.viewer.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,18 +14,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.ContentScale.Companion
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil3.compose.AsyncImage
 import com.mibcxb.viewer.app.LocalAppRes
 import com.mibcxb.viewer.vm.HomeViewModel
 import com.mibcxb.viewer_gui.generated.resources.Res
+import com.mibcxb.viewer_gui.generated.resources.ic_return
 import com.mibcxb.viewer_gui.generated.resources.menu_about
 import com.mibcxb.viewer_gui.generated.resources.menu_edit
 import com.mibcxb.viewer_gui.generated.resources.menu_file
+import com.mibcxb.viewer_gui.generated.resources.text_preview
 import com.mibcxb.widget.compose.Divider
 import com.mibcxb.widget.compose.grid.FileGridView
 import com.mibcxb.widget.compose.tree.FileTreeView
+import org.jetbrains.annotations.Async
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -107,13 +116,20 @@ private fun Content(colScope: ColumnScope, vm: HomeViewModel) = colScope.run {
                     val filepath by remember { vm.filePath }
                     BasicTextField(
                         value = filepath,
-                        onValueChange = {  },
-                        modifier = Modifier.fillMaxWidth().height(24.dp),
+                        onValueChange = vm::changeFilePath,
+                        modifier = Modifier.weight(1f).height(24.dp),
                         singleLine = true
                     )
+                    IconButton(onClick = { vm.goToTargetPath() }) {
+                        Image(painterResource(Res.drawable.ic_return), contentDescription = null)
+                    }
                 }
                 Divider(appRes.dimen.dividerWidth)
-                FileGridView(fileStub,modifier = Modifier.fillMaxWidth().weight(1f))
+                FileGridView(
+                    fileStub = fileStub,
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    onSingleClick = { vm.singleClickGridItem(it) },
+                    onDoubleClick = { vm.doubleClickGridItem(it) })
                 Divider(appRes.dimen.dividerWidth)
                 Row(modifier = Modifier.fillMaxWidth().height(24.dp)) {}
             }
@@ -124,5 +140,29 @@ private fun Content(colScope: ColumnScope, vm: HomeViewModel) = colScope.run {
 
 @Composable
 private fun Preview(colScope: ColumnScope, vm: HomeViewModel) = colScope.run {
-    Box(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.3f))
+    val appRes = LocalAppRes.current
+    Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.3f)) {
+        Text(
+            stringResource(Res.string.text_preview),
+            modifier = Modifier.padding(start = appRes.dimen.paddingPanel, top = appRes.dimen.paddingSmall)
+                .wrapContentSize()
+        )
+        Box(modifier = Modifier.fillMaxWidth().weight(1.0f).background(appRes.color.imagePreviewBackground)) {
+            val previewImageStub by remember { vm.previewImageStub }
+            if (previewImageStub.file.exists() && previewImageStub.file.isFile) {
+                AsyncImage(
+                    model = previewImageStub.file,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+        Row(
+            horizontalArrangement = Arrangement.End,
+            modifier = Modifier.padding(appRes.dimen.paddingSmall).fillMaxWidth().wrapContentHeight()
+        ) {
+
+        }
+    }
 }

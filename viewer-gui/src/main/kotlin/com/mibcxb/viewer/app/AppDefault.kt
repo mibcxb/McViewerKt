@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.sp
 object AppColorDef : AppColor {
     override val borderNormal: Color = Color.LightGray
     override val filepathBackground: Color = Color.White
+    override val imagePreviewBackground: Color = Color.LightGray
 }
 
 object AppDimenDef : AppDimen {
@@ -23,4 +24,6 @@ object AppDimenDef : AppDimen {
 
     override val menuItemWidth: Dp = 36.dp
     override val menuTextSize: TextUnit = 12.sp
+
+    override val iconButtonSize: Dp = 16.dp
 }
