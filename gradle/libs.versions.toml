@@ -55,7 +55,6 @@ viascom-nanoid = { group = "io.viascom.nanoid", name = "nanoid", version = "1.0.
 jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 jetbrainsKotlinKsp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 jetbrainsKotlinKapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
-kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "composePlugin" }
 googleProtobufPlugin = { id = "com.google.protobuf", version = "0.9.5" }

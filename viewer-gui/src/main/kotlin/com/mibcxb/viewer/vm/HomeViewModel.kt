@@ -94,6 +94,18 @@ class HomeViewModel : AbsViewModel() {
         changeFileStub(newFile)
     }
 
+    fun goToParentPath() {
+        val curStub = _fileStub.value
+        val newFile = curStub.file.parentFile
+        if (newFile != null) {
+            changeFileStub(newFile)
+        }
+    }
+
+    fun refreshCurrent() {
+        _fileStub.value.refreshList(fileFilter)
+    }
+
     private fun changeFileStub(newFile: File) {
         if (!newFile.exists() || !newFile.isDirectory) {
             return

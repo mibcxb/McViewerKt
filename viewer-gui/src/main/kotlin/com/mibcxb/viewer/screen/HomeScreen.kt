@@ -15,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.ContentScale.Companion
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,15 +22,19 @@ import coil3.compose.AsyncImage
 import com.mibcxb.viewer.app.LocalAppRes
 import com.mibcxb.viewer.vm.HomeViewModel
 import com.mibcxb.viewer_gui.generated.resources.Res
+import com.mibcxb.viewer_gui.generated.resources.ic_folder_create
+import com.mibcxb.viewer_gui.generated.resources.ic_folder_delete
+import com.mibcxb.viewer_gui.generated.resources.ic_folder_upward
+import com.mibcxb.viewer_gui.generated.resources.ic_refresh
 import com.mibcxb.viewer_gui.generated.resources.ic_return
 import com.mibcxb.viewer_gui.generated.resources.menu_about
 import com.mibcxb.viewer_gui.generated.resources.menu_edit
 import com.mibcxb.viewer_gui.generated.resources.menu_file
+import com.mibcxb.viewer_gui.generated.resources.text_files
 import com.mibcxb.viewer_gui.generated.resources.text_preview
 import com.mibcxb.widget.compose.Divider
 import com.mibcxb.widget.compose.grid.FileGridView
 import com.mibcxb.widget.compose.tree.FileTreeView
-import org.jetbrains.annotations.Async
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -120,8 +123,35 @@ private fun Content(colScope: ColumnScope, vm: HomeViewModel) = colScope.run {
                         modifier = Modifier.weight(1f).height(24.dp),
                         singleLine = true
                     )
-                    IconButton(onClick = { vm.goToTargetPath() }) {
+                    IconButton(
+                        onClick = { vm.goToTargetPath() },
+                        modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
+                    ) {
                         Image(painterResource(Res.drawable.ic_return), contentDescription = null)
+                    }
+//                    IconButton(
+//                        onClick = { vm.refreshCurrent() },
+//                        modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
+//                    ) {
+//                        Image(painterResource(Res.drawable.ic_refresh), contentDescription = null)
+//                    }
+                    IconButton(
+                        onClick = { vm.goToParentPath() },
+                        modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
+                    ) {
+                        Image(painterResource(Res.drawable.ic_folder_upward), contentDescription = null)
+                    }
+                    IconButton(
+                        onClick = { },
+                        modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
+                    ) {
+                        Image(painterResource(Res.drawable.ic_folder_create), contentDescription = null)
+                    }
+                    IconButton(
+                        onClick = { },
+                        modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
+                    ) {
+                        Image(painterResource(Res.drawable.ic_folder_delete), contentDescription = null)
                     }
                 }
                 Divider(appRes.dimen.dividerWidth)
@@ -131,7 +161,13 @@ private fun Content(colScope: ColumnScope, vm: HomeViewModel) = colScope.run {
                     onSingleClick = { vm.singleClickGridItem(it) },
                     onDoubleClick = { vm.doubleClickGridItem(it) })
                 Divider(appRes.dimen.dividerWidth)
-                Row(modifier = Modifier.fillMaxWidth().height(24.dp)) {}
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.padding(end = appRes.dimen.paddingPanel).fillMaxWidth().height(24.dp)
+                ) {
+                    Text(stringResource(Res.string.text_files, fileStub.subCount))
+                }
             }
 
         }

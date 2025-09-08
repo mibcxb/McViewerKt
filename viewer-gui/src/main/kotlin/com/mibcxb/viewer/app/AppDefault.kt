@@ -25,5 +25,5 @@ object AppDimenDef : AppDimen {
     override val menuItemWidth: Dp = 36.dp
     override val menuTextSize: TextUnit = 12.sp
 
-    override val iconButtonSize: Dp = 16.dp
+    override val iconButtonSize: Dp = 24.dp
 }
