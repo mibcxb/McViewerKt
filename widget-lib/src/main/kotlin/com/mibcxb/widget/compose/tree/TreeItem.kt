@@ -1,8 +1,8 @@
 package com.mibcxb.widget.compose.tree
 
-import org.jetbrains.compose.resources.DrawableResource
-
 interface TreeItem {
+    val id: String
     val name: String
-    val icon: DrawableResource?
+
+    val children: List<TreeItem>
 }

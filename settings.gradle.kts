@@ -35,6 +35,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "McViewerKt"
+include("common-lib")
 include("widget-lib")
 include("viewer-lib")
 include("viewer-gui")

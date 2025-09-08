@@ -1,4 +1,4 @@
-package com.mibcxb.widget.compose.tree
+package com.mibcxb.widget.compose.file
 
 enum class FileType(val extensions: Array<String> = emptyArray()) {
     NAN,

@@ -33,6 +33,7 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(compose.components.resources)
 
+    implementation(project(":common-lib"))
     implementation(project(":widget-lib"))
     implementation(project(":viewer-lib"))
 

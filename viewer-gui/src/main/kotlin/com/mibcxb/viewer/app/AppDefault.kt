@@ -1,12 +1,14 @@
 package com.mibcxb.viewer.app
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 object AppColorDef : AppColor {
-
+    override val borderNormal: Color = Color.LightGray
+    override val filepathBackground: Color = Color.White
 }
 
 object AppDimenDef : AppDimen {
