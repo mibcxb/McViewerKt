@@ -50,6 +50,7 @@ vinceglb-filekit-coil = { group = "io.github.vinceglb", name = "filekit-coil", v
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 viascom-nanoid = { group = "io.viascom.nanoid", name = "nanoid", version = "1.0.1" }
+xerial-sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version = "3.45.0.0" }
 
 [plugins]
 jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

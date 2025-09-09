@@ -159,7 +159,8 @@ private fun Content(colScope: ColumnScope, vm: HomeViewModel) = colScope.run {
                     fileStub = fileStub,
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     onSingleClick = { vm.singleClickGridItem(it) },
-                    onDoubleClick = { vm.doubleClickGridItem(it) })
+                    onDoubleClick = { vm.doubleClickGridItem(it) },
+                    iconLoader = { vm.getThumbnail(it) })
                 Divider(appRes.dimen.dividerWidth)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

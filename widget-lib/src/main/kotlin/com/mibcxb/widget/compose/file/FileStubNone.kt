@@ -16,4 +16,8 @@ object FileStubNone: FileStub {
     override fun refreshList(filter: FileFilter) {
         // nothing to do
     }
+
+    override fun refreshStub(newStub: FileStub) {
+        // nothing to do
+    }
 }

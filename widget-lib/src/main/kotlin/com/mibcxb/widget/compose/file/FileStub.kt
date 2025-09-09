@@ -15,4 +15,9 @@ interface FileStub {
 
     fun refreshList() = refreshList { true }
     fun refreshList(filter: FileFilter)
+
+    fun refreshStub(newStub: FileStub)
+
+    fun isImage(): Boolean = FileTypes.isImage(fileType)
+    fun isDirectory(): Boolean = FileTypes.isDir(fileType)
 }

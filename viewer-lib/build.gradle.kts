@@ -35,6 +35,7 @@ dependencies {
     implementation(libs.apache.commons.io)
 
     implementation(libs.viascom.nanoid)
+    implementation(libs.xerial.sqlite.jdbc)
 }
 
 tasks.test {

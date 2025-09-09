@@ -21,10 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil3.ImageLoader
+import coil3.compose.AsyncImage
 import com.mibcxb.widget.compose.file.FileStub
 import com.mibcxb.widget.compose.file.FileType
 import com.mibcxb.widget.widget_lib.generated.resources.Res
@@ -40,13 +43,7 @@ fun FileGridView(
     modifier: Modifier = Modifier,
     onSingleClick: (FileStub) -> Unit = {},
     onDoubleClick: (FileStub) -> Unit = {},
-    iconLoader: ((FileStub) -> DrawableResource?) = {
-        when (it.fileType) {
-            FileType.NAN -> null
-            FileType.DIR -> Res.drawable.folder_normal
-            else -> Res.drawable.file
-        }
-    }
+    iconLoader: ((FileStub) -> ImageBitmap?) = { null }
 ) {
     if (fileStub.fileType != FileType.DIR) {
         return
@@ -74,14 +71,24 @@ fun FileGridView(
                         .fillMaxSize()
                         .clip(RoundedCornerShape(8.dp))
                 ) {
-                    val drawable = iconLoader(fileItem)
-                        ?: if (fileStub.fileType == FileType.DIR) Res.drawable.folder_normal else Res.drawable.file_unknown
-                    Image(
-                        painterResource(drawable),
-                        fileItem.path,
-                        modifier = Modifier.padding(vertical = 8.dp).size(80.dp, 60.dp),
-                        contentScale = ContentScale.FillWidth
-                    )
+                    val bitmap = iconLoader(fileItem)
+                    if (bitmap != null) {
+                        Image(
+                            bitmap,
+                            fileItem.path,
+                            modifier = Modifier.padding(vertical = 8.dp).size(80.dp, 60.dp),
+                            contentScale = ContentScale.FillWidth
+                        )
+                    } else {
+                        val drawable =
+                            if (fileStub.isDirectory()) Res.drawable.folder_normal else Res.drawable.file_unknown
+                        Image(
+                            painterResource(drawable),
+                            fileItem.path,
+                            modifier = Modifier.padding(vertical = 8.dp).size(80.dp, 60.dp),
+                            contentScale = ContentScale.FillWidth
+                        )
+                    }
                     Text(
                         fileItem.name,
                         maxLines = 2,
