@@ -225,14 +225,21 @@ class HomeViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
         return surface.makeImageSnapshot().encodeToData(format, quality)?.bytes
     }.onFailure { logger.error(logTag, it.message, it) }.getOrNull()
 
-    fun getThumbnail(curStub: FileStub): ImageBitmap? {
+//    fun getThumbnail(curStub: FileStub): ImageBitmap? {
+//        if (!curStub.isImage()) {
+//            return null
+//        }
+//        val dataBytes = cacheApi.obtainCacheThumb(curStub.path)
+//        if (dataBytes != null) {
+//            return Image.makeFromEncoded(dataBytes).toComposeImageBitmap()
+//        }
+//        return null
+//    }
+
+    fun getThumbnail(curStub: FileStub): ByteArray? {
         if (!curStub.isImage()) {
             return null
         }
-        val dataBytes = cacheApi.obtainCacheThumb(curStub.path)
-        if (dataBytes != null) {
-            return Image.makeFromEncoded(dataBytes).toComposeImageBitmap()
-        }
-        return null
+        return cacheApi.obtainCacheThumb(curStub.path)
     }
 }

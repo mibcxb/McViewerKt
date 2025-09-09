@@ -1,6 +1,5 @@
 package com.mibcxb.widget.compose.grid
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,17 +20,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import com.mibcxb.widget.compose.coil.FileStubFetcher
+import com.mibcxb.widget.compose.coil.FileStubKeyer
 import com.mibcxb.widget.compose.file.FileStub
 import com.mibcxb.widget.compose.file.FileType
 import com.mibcxb.widget.widget_lib.generated.resources.Res
-import com.mibcxb.widget.widget_lib.generated.resources.file
 import com.mibcxb.widget.widget_lib.generated.resources.file_unknown
 import com.mibcxb.widget.widget_lib.generated.resources.folder_normal
 import org.jetbrains.compose.resources.DrawableResource
@@ -43,7 +43,8 @@ fun FileGridView(
     modifier: Modifier = Modifier,
     onSingleClick: (FileStub) -> Unit = {},
     onDoubleClick: (FileStub) -> Unit = {},
-    iconLoader: ((FileStub) -> ImageBitmap?) = { null }
+    cacheLoader: (FileStub) -> ByteArray? = { null },
+    imageLoader: (FileStub) -> DrawableResource? = { null }
 ) {
     if (fileStub.fileType != FileType.DIR) {
         return
@@ -71,24 +72,24 @@ fun FileGridView(
                         .fillMaxSize()
                         .clip(RoundedCornerShape(8.dp))
                 ) {
-                    val bitmap = iconLoader(fileItem)
-                    if (bitmap != null) {
-                        Image(
-                            bitmap,
-                            fileItem.path,
-                            modifier = Modifier.padding(vertical = 8.dp).size(80.dp, 60.dp),
-                            contentScale = ContentScale.FillWidth
-                        )
-                    } else {
-                        val drawable =
-                            if (fileStub.isDirectory()) Res.drawable.folder_normal else Res.drawable.file_unknown
-                        Image(
-                            painterResource(drawable),
-                            fileItem.path,
-                            modifier = Modifier.padding(vertical = 8.dp).size(80.dp, 60.dp),
-                            contentScale = ContentScale.FillWidth
-                        )
-                    }
+                    val drawable = imageLoader(fileItem)
+                        ?: if (fileStub.isDirectory()) Res.drawable.folder_normal else Res.drawable.file_unknown
+                    val platformContext = LocalPlatformContext.current
+                    AsyncImage(
+                        model = fileItem,
+                        contentDescription = null,
+                        error = painterResource(drawable),
+                        placeholder = painterResource(drawable),
+                        contentScale = ContentScale.FillWidth,
+                        imageLoader = ImageLoader.Builder(platformContext).components {
+                            add(FileStubKeyer())
+                            add(
+                                FileStubFetcher.Factory(
+                                    repo = cacheLoader,
+                                    mime = { "image/png" }
+                                ))
+                        }.build()
+                    )
                     Text(
                         fileItem.name,
                         maxLines = 2,

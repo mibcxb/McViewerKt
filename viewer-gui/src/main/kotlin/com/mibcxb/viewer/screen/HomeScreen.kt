@@ -4,7 +4,20 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -25,7 +38,6 @@ import com.mibcxb.viewer_gui.generated.resources.Res
 import com.mibcxb.viewer_gui.generated.resources.ic_folder_create
 import com.mibcxb.viewer_gui.generated.resources.ic_folder_delete
 import com.mibcxb.viewer_gui.generated.resources.ic_folder_upward
-import com.mibcxb.viewer_gui.generated.resources.ic_refresh
 import com.mibcxb.viewer_gui.generated.resources.ic_return
 import com.mibcxb.viewer_gui.generated.resources.menu_about
 import com.mibcxb.viewer_gui.generated.resources.menu_edit
@@ -160,7 +172,7 @@ private fun Content(colScope: ColumnScope, vm: HomeViewModel) = colScope.run {
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     onSingleClick = { vm.singleClickGridItem(it) },
                     onDoubleClick = { vm.doubleClickGridItem(it) },
-                    iconLoader = { vm.getThumbnail(it) })
+                    cacheLoader = { vm.getThumbnail(it) })
                 Divider(appRes.dimen.dividerWidth)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -170,7 +182,6 @@ private fun Content(colScope: ColumnScope, vm: HomeViewModel) = colScope.run {
                     Text(stringResource(Res.string.text_files, fileStub.subCount))
                 }
             }
-
         }
     }
 }
