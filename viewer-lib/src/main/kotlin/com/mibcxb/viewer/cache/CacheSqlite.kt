@@ -1,5 +1,6 @@
 package com.mibcxb.viewer.cache
 
+import com.mibcxb.viewer.McViewer
 import com.mibcxb.viewer.log.LogApi
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -15,7 +16,7 @@ class CacheSqlite : CacheApi, LogApi {
     private val connection: Connection
 
     init {
-        val dbPath = File("McViewer.db").absolutePath
+        val dbPath = File(McViewer.dataRoot,"McViewer.db").absolutePath
         connection = DriverManager.getConnection("jdbc:sqlite:$dbPath")
         createTables()
     }

@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,6 +36,9 @@ import coil3.compose.AsyncImage
 import com.mibcxb.viewer.app.LocalAppRes
 import com.mibcxb.viewer.vm.HomeViewModel
 import com.mibcxb.viewer_gui.generated.resources.Res
+import com.mibcxb.viewer_gui.generated.resources.ic_content_copy
+import com.mibcxb.viewer_gui.generated.resources.ic_content_cut
+import com.mibcxb.viewer_gui.generated.resources.ic_content_paste
 import com.mibcxb.viewer_gui.generated.resources.ic_folder_create
 import com.mibcxb.viewer_gui.generated.resources.ic_folder_delete
 import com.mibcxb.viewer_gui.generated.resources.ic_folder_upward
@@ -164,6 +168,24 @@ private fun Content(colScope: ColumnScope, vm: HomeViewModel) = colScope.run {
                         modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
                     ) {
                         Image(painterResource(Res.drawable.ic_folder_delete), contentDescription = null)
+                    }
+                    IconButton(
+                        onClick = { },
+                        modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
+                    ) {
+                        Image(painterResource(Res.drawable.ic_content_copy), contentDescription = null)
+                    }
+                    IconButton(
+                        onClick = { },
+                        modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
+                    ) {
+                        Image(painterResource(Res.drawable.ic_content_cut), contentDescription = null)
+                    }
+                    IconButton(
+                        onClick = { },
+                        modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
+                    ) {
+                        Image(painterResource(Res.drawable.ic_content_paste), contentDescription = null)
                     }
                 }
                 Divider(appRes.dimen.dividerWidth)
