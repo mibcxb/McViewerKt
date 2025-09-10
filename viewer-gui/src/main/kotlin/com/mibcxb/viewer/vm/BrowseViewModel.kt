@@ -5,8 +5,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.lifecycle.viewModelScope
 import com.mibcxb.viewer.cache.CacheApi
 import com.mibcxb.viewer.cache.CacheSqlite
@@ -21,7 +19,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.EncodedImageFormat
-import org.jetbrains.skia.FilterQuality
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.Rect
@@ -31,7 +28,7 @@ import java.io.File
 import java.io.FileFilter
 import kotlin.math.min
 
-class HomeViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
+class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
     private val _fileTree = FileTree()
     val fileTree: FileTree get() = _fileTree
 

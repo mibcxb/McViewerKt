@@ -27,14 +27,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.mibcxb.viewer.app.LocalAppRes
-import com.mibcxb.viewer.vm.HomeViewModel
+import com.mibcxb.viewer.vm.BrowseViewModel
 import com.mibcxb.viewer_gui.generated.resources.Res
 import com.mibcxb.viewer_gui.generated.resources.ic_content_copy
 import com.mibcxb.viewer_gui.generated.resources.ic_content_cut
@@ -56,7 +55,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HomeScreen(vm: HomeViewModel = viewModel { HomeViewModel() }) {
+fun BrowseScreen(vm: BrowseViewModel = viewModel { BrowseViewModel() }) {
     val appRes = LocalAppRes.current
     Column(modifier = Modifier.fillMaxSize()) {
         MenuBar(this)
@@ -109,7 +108,7 @@ private fun MenuBar(colScope: ColumnScope) = colScope.run {
 }
 
 @Composable
-private fun Content(colScope: ColumnScope, vm: HomeViewModel) = colScope.run {
+private fun Content(colScope: ColumnScope, vm: BrowseViewModel) = colScope.run {
     val appRes = LocalAppRes.current
     Row(modifier = Modifier.fillMaxWidth().weight(1.0f)) {
         Column(modifier = Modifier.weight(0.25f).fillMaxHeight()) {
@@ -209,7 +208,7 @@ private fun Content(colScope: ColumnScope, vm: HomeViewModel) = colScope.run {
 }
 
 @Composable
-private fun Preview(colScope: ColumnScope, vm: HomeViewModel) = colScope.run {
+private fun Preview(colScope: ColumnScope, vm: BrowseViewModel) = colScope.run {
     val appRes = LocalAppRes.current
     Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.3f)) {
         Text(
