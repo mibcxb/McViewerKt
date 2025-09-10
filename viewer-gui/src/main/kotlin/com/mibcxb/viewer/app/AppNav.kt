@@ -7,23 +7,25 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.mibcxb.viewer.screen.BROWSE_SCREEN
+import androidx.navigation.toRoute
 import com.mibcxb.viewer.screen.BrowseScreen
-import com.mibcxb.viewer.screen.DETAIL_SCREEN
+import com.mibcxb.viewer.screen.BrowseScreenView
 import com.mibcxb.viewer.screen.DetailScreen
+import com.mibcxb.viewer.screen.DetailScreenView
 
 @Composable
 fun AppNav(navController: NavHostController = rememberNavController()) {
     NavHost(
         navController = navController,
-        startDestination = BROWSE_SCREEN,
+        startDestination = BrowseScreen,
         modifier = Modifier.fillMaxSize()
     ) {
-        composable(BROWSE_SCREEN) {
-            BrowseScreen()
+        composable<BrowseScreen> {
+            BrowseScreenView(nav = navController)
         }
-        composable(DETAIL_SCREEN) {
-            DetailScreen()
+        composable<DetailScreen> { backStackEntry ->
+            val detailScreen = backStackEntry.toRoute<DetailScreen>()
+            DetailScreenView(filepath = detailScreen.filepath)
         }
     }
 }

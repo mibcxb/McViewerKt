@@ -60,6 +60,9 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
     val selectedItem: State<FileItem?> get() = _selectedItem
 
     fun initFileTree() {
+        if (_fileTree.branches.isNotEmpty()) {
+            return
+        }
         val rootList = File.listRoots().map { FileItem(it) }
         _fileTree.branches.apply {
             clear()

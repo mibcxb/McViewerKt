@@ -11,12 +11,11 @@ class FileStubImpl(override val file: File) : FileStub {
 
     override val extension: String get() = file.extension.lowercase()
 
-    override val fileType: FileType
-        get() = if (file.isDirectory) {
-            FileType.DIR
-        } else {
-            FileType.entries.find { it.extensions.contains(extension) } ?: FileType.NAN
-        }
+    override val fileType: FileType = if (file.isDirectory) {
+        FileType.DIR
+    } else {
+        FileType.entries.find { it.extensions.contains(extension) } ?: FileType.NAN
+    }
 
     override val subFiles: SnapshotStateList<FileStub> = mutableStateListOf<FileStub>()
 

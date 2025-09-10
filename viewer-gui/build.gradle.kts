@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 plugins {
     `java-library`
     alias(libs.plugins.jetbrainsKotlinJvm)
+    alias(libs.plugins.jetbrainsKotlinSerialization)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
 }
@@ -39,6 +40,8 @@ dependencies {
 
     implementation(platform(libs.kotlinx.coroutines.bom))
     implementation(libs.kotlinx.coroutines.core)
+
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.slf4j.api)
     implementation(libs.slf4j.simple)

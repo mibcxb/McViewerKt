@@ -1,8 +1,16 @@
 package com.mibcxb.widget.compose.file
 
-object FileTypes {
-    val imageTypes: Array<FileType> = arrayOf(FileType.JPG, FileType.PNG)
-    fun isImage(fileType: FileType): Boolean = imageTypes.contains(fileType)
+import java.io.FileFilter
 
-    fun isDir(fileType: FileType):Boolean = fileType == FileType.DIR
+object FileTypes {
+    val images: Array<FileType> = arrayOf(FileType.JPG, FileType.PNG)
+    val imageExtensions: Array<String> = images.flatMap { it.extensions.toList() }.toTypedArray()
+
+    val imageFilter: FileFilter = FileFilter { file ->
+        file.exists() && file.isFile && !file.isHidden && imageExtensions.contains(file.extension)
+    }
+
+    fun isImage(fileType: FileType): Boolean = images.contains(fileType)
+
+    fun isDir(fileType: FileType): Boolean = fileType == FileType.DIR
 }

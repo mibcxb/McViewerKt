@@ -31,6 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.mibcxb.viewer.app.LocalAppRes
 import com.mibcxb.viewer.vm.BrowseViewModel
@@ -48,6 +49,7 @@ import com.mibcxb.viewer_gui.generated.resources.menu_file
 import com.mibcxb.viewer_gui.generated.resources.text_files
 import com.mibcxb.viewer_gui.generated.resources.text_preview
 import com.mibcxb.widget.compose.Divider
+import com.mibcxb.widget.compose.file.FileTypes
 import com.mibcxb.widget.compose.grid.FileGridView
 import com.mibcxb.widget.compose.tree.FileTreeView
 import org.jetbrains.compose.resources.painterResource
@@ -55,12 +57,12 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BrowseScreen(vm: BrowseViewModel = viewModel { BrowseViewModel() }) {
+fun BrowseScreenView(vm: BrowseViewModel = viewModel { BrowseViewModel() }, nav: NavController) {
     val appRes = LocalAppRes.current
     Column(modifier = Modifier.fillMaxSize()) {
         MenuBar(this)
         Divider(appRes.dimen.dividerWidth)
-        Content(this, vm)
+        Content(this, vm, nav)
     }
 
     LaunchedEffect(Unit) {
@@ -108,7 +110,7 @@ private fun MenuBar(colScope: ColumnScope) = colScope.run {
 }
 
 @Composable
-private fun Content(colScope: ColumnScope, vm: BrowseViewModel) = colScope.run {
+private fun Content(colScope: ColumnScope, vm: BrowseViewModel, nav: NavController) = colScope.run {
     val appRes = LocalAppRes.current
     Row(modifier = Modifier.fillMaxWidth().weight(1.0f)) {
         Column(modifier = Modifier.weight(0.25f).fillMaxHeight()) {
@@ -192,7 +194,12 @@ private fun Content(colScope: ColumnScope, vm: BrowseViewModel) = colScope.run {
                     fileStub = fileStub,
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     onSingleClick = { vm.singleClickGridItem(it) },
-                    onDoubleClick = { vm.doubleClickGridItem(it) },
+                    onDoubleClick = {
+                        when {
+                            FileTypes.isImage(it.fileType) -> nav.navigate(DetailScreen(it.path))
+                            FileTypes.isDir(it.fileType) -> vm.doubleClickGridItem(it)
+                        }
+                    },
                     cacheLoader = { vm.getThumbnail(it) })
                 Divider(appRes.dimen.dividerWidth)
                 Row(
