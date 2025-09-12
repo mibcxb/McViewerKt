@@ -5,19 +5,16 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Size
-import androidx.lifecycle.viewModelScope
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.mibcxb.viewer.cache.CacheApi
 import com.mibcxb.viewer.cache.CacheSqlite
 import com.mibcxb.widget.compose.file.FileStub
 import com.mibcxb.widget.compose.file.FileStubImpl
 import com.mibcxb.widget.compose.file.FileStubNone
+import com.mibcxb.widget.compose.file.FileType
 import com.mibcxb.widget.compose.tree.FileItem
 import com.mibcxb.widget.compose.tree.FileTree
-import com.mibcxb.widget.compose.file.FileType
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import org.jetbrains.skia.EncodedImageFormat
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.Paint
@@ -53,8 +50,6 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
             else -> false
         }
     }
-
-    private var thumbJob: Job? = null
 
     private val _selectedItem = mutableStateOf<FileItem?>(null)
     val selectedItem: State<FileItem?> get() = _selectedItem
@@ -99,7 +94,6 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
         if (_fileStub.value != stub) {
             _fileStub.value = stub.apply {
                 refreshList(fileFilter)
-                restartThumbJob(this)
             }
             _filePath.value = stub.path
         }
@@ -138,7 +132,6 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
         }
         _fileStub.value = FileStubImpl(newFile).apply {
             refreshList(fileFilter)
-            restartThumbJob(this)
         }
         _filePath.value = newFile.canonicalPath
 
@@ -156,20 +149,6 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
             return
         }
         _previewImageStub.value = FileStubImpl(newFile)
-    }
-
-    private fun restartThumbJob(rootStub: FileStub) {
-        thumbJob?.cancel()
-        thumbJob = viewModelScope.launch(Dispatchers.IO) {
-            val iterator = rootStub.subFiles.toList().iterator()
-            while (isActive && iterator.hasNext()) {
-                val curStub = iterator.next()
-                val newStub = genThumbnail(curStub)
-                if (newStub != null) {
-                    rootStub.refreshStub(newStub)
-                }
-            }
-        }
     }
 
     private fun genThumbnail(curStub: FileStub): FileStub? {
@@ -225,21 +204,24 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
         return surface.makeImageSnapshot().encodeToData(format, quality)?.bytes
     }.onFailure { logger.error(logTag, it.message, it) }.getOrNull()
 
-//    fun getThumbnail(curStub: FileStub): ImageBitmap? {
-//        if (!curStub.isImage()) {
-//            return null
-//        }
-//        val dataBytes = cacheApi.obtainCacheThumb(curStub.path)
-//        if (dataBytes != null) {
-//            return Image.makeFromEncoded(dataBytes).toComposeImageBitmap()
-//        }
-//        return null
-//    }
+    fun getThumbBitmap(curStub: FileStub): ImageBitmap? {
+        val dataBytes = getThumbnail(curStub) ?: return null
+        return Image.makeFromEncoded(dataBytes).toComposeImageBitmap()
+    }
 
     fun getThumbnail(curStub: FileStub): ByteArray? {
         if (!curStub.isImage()) {
             return null
         }
-        return cacheApi.obtainCacheThumb(curStub.path)
+        val curBytes = cacheApi.obtainCacheThumb(curStub.path)
+        if (curBytes != null) {
+            return curBytes
+        }
+        val newBytes = genThumbSkia(curStub.file)
+        if (newBytes != null) {
+            val flag = cacheApi.insertCacheThumb(curStub.path, newBytes)
+            logger.debug("insertCacheThumb: $flag, path: ${curStub.path}, size: ${newBytes.size}")
+        }
+        return newBytes
     }
 }
