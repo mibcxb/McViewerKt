@@ -26,6 +26,7 @@ kotlin {
 
 dependencies {
     testImplementation(kotlin("test"))
+    implementation(compose.desktop.common)
 
     implementation(platform(libs.kotlinx.coroutines.bom))
     implementation(libs.kotlinx.coroutines.core)

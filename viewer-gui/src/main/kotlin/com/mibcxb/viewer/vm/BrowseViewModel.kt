@@ -7,6 +7,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import com.mibcxb.common.skia.SkiaUtils
 import com.mibcxb.viewer.cache.CacheApi
 import com.mibcxb.viewer.cache.CacheSqlite
 import com.mibcxb.widget.compose.file.FileStub
@@ -17,13 +18,9 @@ import com.mibcxb.widget.compose.tree.FileItem
 import com.mibcxb.widget.compose.tree.FileTree
 import org.jetbrains.skia.EncodedImageFormat
 import org.jetbrains.skia.Image
-import org.jetbrains.skia.Paint
-import org.jetbrains.skia.Rect
 import org.jetbrains.skia.SamplingMode
-import org.jetbrains.skia.Surface
 import java.io.File
 import java.io.FileFilter
-import kotlin.math.min
 
 class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
     private val _fileTree = FileTree()
@@ -175,33 +172,10 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
         file: File,
         target: Size = Size(160f, 120f),
         format: EncodedImageFormat = EncodedImageFormat.PNG,
-        quality: Int = 90,
+        samplingMode: SamplingMode = SamplingMode.DEFAULT,
+        quality: Int = 90
     ): ByteArray? = kotlin.runCatching {
-        // 1) 解码原图
-        val fileBytes = file.readBytes()
-        val src = Image.makeFromEncoded(fileBytes)
-        val sw = src.width.toFloat()
-        val sh = src.height.toFloat()
-        val dw = target.width
-        val dh = target.height
-        // 2) 计算源区域与目标区域（保持比例）
-        val scale = min(dw / sw, dh / sh)
-        val outW = (sw * scale)
-        val outH = (sh * scale)
-        val dx = (dw - outW) / 2f // 居中放置
-        val dy = (dh - outH) / 2f
-        val srcRect = Rect.makeXYWH(0f, 0f, sw, sh)
-        val dstRect = Rect.makeXYWH(dx, dy, outW, outH)
-        // 3) 在目标画布上高质量绘制
-        val surface = Surface.makeRasterN32Premul(target.width.toInt(), target.height.toInt()).apply {
-            canvas.run {
-                clear(0x00000000) // 透明背景
-                val paint = Paint().apply { isAntiAlias = true } // 抗锯齿
-                drawImageRect(src, srcRect, dstRect, SamplingMode.DEFAULT, paint, true)
-            }
-        }
-        // 4) 导出缩略图
-        return surface.makeImageSnapshot().encodeToData(format, quality)?.bytes
+        SkiaUtils.genThumb(file.readBytes(), target, format, samplingMode, quality)
     }.onFailure { logger.error(logTag, it.message, it) }.getOrNull()
 
     fun getThumbBitmap(curStub: FileStub): ImageBitmap? {
