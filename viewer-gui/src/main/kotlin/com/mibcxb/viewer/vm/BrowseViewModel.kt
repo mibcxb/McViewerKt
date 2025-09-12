@@ -14,6 +14,7 @@ import com.mibcxb.widget.compose.file.FileStub
 import com.mibcxb.widget.compose.file.FileStubImpl
 import com.mibcxb.widget.compose.file.FileStubNone
 import com.mibcxb.widget.compose.file.FileType
+import com.mibcxb.widget.compose.file.FileTypes
 import com.mibcxb.widget.compose.tree.FileItem
 import com.mibcxb.widget.compose.tree.FileTree
 import org.jetbrains.skia.EncodedImageFormat
@@ -35,7 +36,7 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
     private val _previewImageStub = mutableStateOf<FileStub>(FileStubNone)
     val previewImageStub: State<FileStub> get() = _previewImageStub
 
-    private val _fileTypeList = mutableStateListOf(FileType.JPG, FileType.PNG)
+    private val _fileTypeList = mutableStateListOf(*FileTypes.images)
     val fileTypeList: SnapshotStateList<FileType> get() = _fileTypeList
 
     private val fileFilter: FileFilter = FileFilter { file ->
@@ -175,7 +176,11 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
         samplingMode: SamplingMode = SamplingMode.DEFAULT,
         quality: Int = 90
     ): ByteArray? = kotlin.runCatching {
-        SkiaUtils.genThumb(file.readBytes(), target, format, samplingMode, quality)
+        if (FileType.SVG.extensions.contains(file.extension.lowercase())) {
+            SkiaUtils.svgThumb(file.readBytes(), target = target, format = format, quality = quality)
+        } else {
+            SkiaUtils.genThumb(file.readBytes(), target, format, samplingMode, quality)
+        }
     }.onFailure { logger.error(logTag, it.message, it) }.getOrNull()
 
     fun getThumbBitmap(curStub: FileStub): ImageBitmap? {

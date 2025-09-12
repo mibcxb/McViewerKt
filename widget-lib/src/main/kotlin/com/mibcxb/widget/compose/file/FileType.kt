@@ -4,5 +4,6 @@ enum class FileType(val extensions: Array<String> = emptyArray()) {
     NAN,
     DIR,
     JPG(arrayOf("jpg", "jpeg")),
-    PNG(arrayOf("png"));
+    PNG(arrayOf("png")),
+    SVG(arrayOf("svg"));
 }

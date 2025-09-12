@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -36,13 +37,24 @@ import coil3.compose.AsyncImage
 import com.mibcxb.viewer.app.LocalAppRes
 import com.mibcxb.viewer.vm.BrowseViewModel
 import com.mibcxb.viewer_gui.generated.resources.Res
+import com.mibcxb.viewer_gui.generated.resources.ic_clipboard_copy
+import com.mibcxb.viewer_gui.generated.resources.ic_clipboard_paste
 import com.mibcxb.viewer_gui.generated.resources.ic_content_copy
 import com.mibcxb.viewer_gui.generated.resources.ic_content_cut
 import com.mibcxb.viewer_gui.generated.resources.ic_content_paste
+import com.mibcxb.viewer_gui.generated.resources.ic_enter
+import com.mibcxb.viewer_gui.generated.resources.ic_file_image
+import com.mibcxb.viewer_gui.generated.resources.ic_folder
 import com.mibcxb.viewer_gui.generated.resources.ic_folder_create
 import com.mibcxb.viewer_gui.generated.resources.ic_folder_delete
+import com.mibcxb.viewer_gui.generated.resources.ic_folder_plus
+import com.mibcxb.viewer_gui.generated.resources.ic_folder_remove
+import com.mibcxb.viewer_gui.generated.resources.ic_folder_sync
+import com.mibcxb.viewer_gui.generated.resources.ic_folder_up
 import com.mibcxb.viewer_gui.generated.resources.ic_folder_upward
 import com.mibcxb.viewer_gui.generated.resources.ic_return
+import com.mibcxb.viewer_gui.generated.resources.ic_scissors
+import com.mibcxb.viewer_gui.generated.resources.ic_send
 import com.mibcxb.viewer_gui.generated.resources.menu_about
 import com.mibcxb.viewer_gui.generated.resources.menu_edit
 import com.mibcxb.viewer_gui.generated.resources.menu_file
@@ -144,7 +156,7 @@ private fun Content(colScope: ColumnScope, vm: BrowseViewModel, nav: NavControll
                         onClick = { vm.goToTargetPath() },
                         modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
                     ) {
-                        Image(painterResource(Res.drawable.ic_return), contentDescription = null)
+                        Image(painterResource(Res.drawable.ic_enter), contentDescription = null)
                     }
 //                    IconButton(
 //                        onClick = { vm.refreshCurrent() },
@@ -156,37 +168,49 @@ private fun Content(colScope: ColumnScope, vm: BrowseViewModel, nav: NavControll
                         onClick = { vm.goToParentPath() },
                         modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
                     ) {
-                        Image(painterResource(Res.drawable.ic_folder_upward), contentDescription = null)
+                        Image(painterResource(Res.drawable.ic_folder_up), contentDescription = null)
                     }
                     IconButton(
                         onClick = { },
                         modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
                     ) {
-                        Image(painterResource(Res.drawable.ic_folder_create), contentDescription = null)
+                        Image(painterResource(Res.drawable.ic_folder_plus), contentDescription = null)
                     }
                     IconButton(
                         onClick = { },
                         modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
                     ) {
-                        Image(painterResource(Res.drawable.ic_folder_delete), contentDescription = null)
+                        Image(painterResource(Res.drawable.ic_folder_remove), contentDescription = null)
                     }
                     IconButton(
                         onClick = { },
                         modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
                     ) {
-                        Image(painterResource(Res.drawable.ic_content_copy), contentDescription = null)
+                        Image(
+                            painterResource(Res.drawable.ic_clipboard_copy),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxHeight(0.85f)
+                        )
                     }
                     IconButton(
                         onClick = { },
                         modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
                     ) {
-                        Image(painterResource(Res.drawable.ic_content_cut), contentDescription = null)
+                        Image(
+                            painterResource(Res.drawable.ic_scissors),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxHeight(0.85f)
+                        )
                     }
                     IconButton(
                         onClick = { },
                         modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
                     ) {
-                        Image(painterResource(Res.drawable.ic_content_paste), contentDescription = null)
+                        Image(
+                            painterResource(Res.drawable.ic_clipboard_paste),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxHeight(0.85f)
+                        )
                     }
                 }
                 Divider(appRes.dimen.dividerWidth)
@@ -200,7 +224,9 @@ private fun Content(colScope: ColumnScope, vm: BrowseViewModel, nav: NavControll
                             FileTypes.isDir(it.fileType) -> vm.doubleClickGridItem(it)
                         }
                     },
-                    cacheLoader = { vm.getThumbnail(it) })
+                    cacheLoader = { vm.getThumbnail(it) },
+                    imageLoader = { if (fileStub.isDirectory()) Res.drawable.ic_folder else Res.drawable.ic_file_image }
+                )
                 Divider(appRes.dimen.dividerWidth)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

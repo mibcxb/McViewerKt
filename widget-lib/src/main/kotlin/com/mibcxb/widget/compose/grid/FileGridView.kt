@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -80,7 +81,7 @@ fun FileGridView(
                         contentDescription = null,
                         error = painterResource(drawable),
                         placeholder = painterResource(drawable),
-                        contentScale = ContentScale.FillWidth,
+                        contentScale = ContentScale.Fit,
                         imageLoader = ImageLoader.Builder(platformContext).components {
                             add(FileStubKeyer())
                             add(
@@ -88,7 +89,8 @@ fun FileGridView(
                                     repo = cacheLoader,
                                     mime = { "image/png" }
                                 ))
-                        }.build()
+                        }.build(),
+                        modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f)
                     )
                     Text(
                         fileItem.name,

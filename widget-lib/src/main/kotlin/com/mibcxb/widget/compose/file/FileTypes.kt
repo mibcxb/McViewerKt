@@ -3,7 +3,7 @@ package com.mibcxb.widget.compose.file
 import java.io.FileFilter
 
 object FileTypes {
-    val images: Array<FileType> = arrayOf(FileType.JPG, FileType.PNG)
+    val images: Array<FileType> = arrayOf(FileType.JPG, FileType.PNG, FileType.SVG)
     val imageExtensions: Array<String> = images.flatMap { it.extensions.toList() }.toTypedArray()
 
     val imageFilter: FileFilter = FileFilter { file ->
