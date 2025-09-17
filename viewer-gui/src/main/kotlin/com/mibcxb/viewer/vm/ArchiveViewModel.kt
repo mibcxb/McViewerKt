@@ -5,15 +5,14 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.mibcxb.common.http.MimeTypes
-import com.mibcxb.viewer.archive.ArchiveAccessor
-import com.mibcxb.viewer.archive.ArchiveAccessorFactory
-import com.mibcxb.viewer.archive.ArchiveEntryStub
-import com.mibcxb.viewer.archive.SevenZAccessor
-import com.mibcxb.viewer.archive.ZipFileAccessor
+import com.mibcxb.widget.compose.file.archive.ArchiveAccessor
+import com.mibcxb.widget.compose.file.archive.ArchiveAccessorFactory
+import com.mibcxb.widget.compose.file.archive.ArchiveEntryStub
+import com.mibcxb.widget.compose.file.archive.SevenZAccessor
+import com.mibcxb.widget.compose.file.archive.ZipFileAccessor
 import com.mibcxb.widget.compose.file.FileStub
 import com.mibcxb.widget.compose.file.FileStubImpl
 import com.mibcxb.widget.compose.file.FileType
-import com.mibcxb.widget.compose.file.FileTypes
 import okio.Buffer
 import java.io.File
 

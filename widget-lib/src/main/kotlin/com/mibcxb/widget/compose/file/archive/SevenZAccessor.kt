@@ -1,4 +1,4 @@
-package com.mibcxb.viewer.archive
+package com.mibcxb.widget.compose.file.archive
 
 import com.mibcxb.widget.compose.file.FileStub
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
@@ -11,7 +11,7 @@ class SevenZAccessor(fileStub: FileStub) : ArchiveAccessor(fileStub) {
     private var _sevenZFile: SevenZFile? = null
 
     override fun prepare() {
-        _sevenZFile = kotlin.runCatching {
+        _sevenZFile = runCatching {
             SevenZFile.Builder().setFile(fileStub.path).get()
         }.onFailure { logger.warn(logTag, it.message, it) }.getOrNull()
     }

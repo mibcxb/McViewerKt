@@ -1,4 +1,4 @@
-package com.mibcxb.viewer.archive
+package com.mibcxb.widget.compose.file.archive
 
 import coil3.key.Keyer
 import coil3.request.Options

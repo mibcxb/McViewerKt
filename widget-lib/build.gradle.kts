@@ -31,5 +31,10 @@ dependencies {
     implementation(platform(libs.kotlinx.coroutines.bom))
     implementation(libs.kotlinx.coroutines.core)
 
+    implementation(libs.slf4j.api)
+
+    implementation(libs.apache.commons.compress)
+    implementation(libs.tukaani.xz)
+
     implementation(libs.coil.compose)
 }

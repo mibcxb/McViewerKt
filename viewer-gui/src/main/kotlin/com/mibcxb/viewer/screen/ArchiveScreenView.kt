@@ -36,7 +36,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.decode.DataSource
 import com.mibcxb.viewer.app.LocalAppRes
-import com.mibcxb.viewer.archive.ArchiveEntryKeyer
+import com.mibcxb.widget.compose.file.archive.ArchiveEntryKeyer
 import com.mibcxb.viewer.vm.ArchiveViewModel
 import com.mibcxb.viewer_gui.generated.resources.Res
 import com.mibcxb.viewer_gui.generated.resources.icon_filetype_jpg

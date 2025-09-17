@@ -31,7 +31,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.decode.DataSource
 import com.mibcxb.widget.compose.coil.DelegateFetcher
-import com.mibcxb.widget.compose.coil.FileStubKeyer
+import com.mibcxb.widget.compose.file.FileStubKeyer
 import com.mibcxb.widget.compose.file.FileStub
 import com.mibcxb.widget.compose.file.FileType
 import com.mibcxb.widget.widget_lib.generated.resources.Res

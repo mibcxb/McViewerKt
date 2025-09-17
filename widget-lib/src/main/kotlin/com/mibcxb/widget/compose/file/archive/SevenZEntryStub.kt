@@ -1,4 +1,4 @@
-package com.mibcxb.viewer.archive
+package com.mibcxb.widget.compose.file.archive
 
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 

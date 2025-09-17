@@ -1,4 +1,4 @@
-package com.mibcxb.viewer.archive
+package com.mibcxb.widget.compose.file.archive
 
 import com.mibcxb.widget.compose.file.FileStub
 

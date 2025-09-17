@@ -1,4 +1,4 @@
-package com.mibcxb.viewer.archive
+package com.mibcxb.widget.compose.file.archive
 
 import com.mibcxb.widget.compose.file.FileStub
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
@@ -10,7 +10,7 @@ class ZipFileAccessor(fileStub: FileStub) : ArchiveAccessor(fileStub) {
     private var _zipFile: ZipFile? = null
 
     override fun prepare() {
-        _zipFile = kotlin.runCatching {
+        _zipFile = runCatching {
             ZipFile.Builder().setFile(fileStub.path).get()
         }.onFailure { logger.warn(logTag, it.message, it) }.getOrNull()
     }
