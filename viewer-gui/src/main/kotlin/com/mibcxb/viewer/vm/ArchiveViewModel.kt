@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.mibcxb.common.http.MimeTypes
 import com.mibcxb.viewer.archive.ArchiveAccessor
 import com.mibcxb.viewer.archive.ArchiveAccessorFactory
 import com.mibcxb.viewer.archive.ArchiveEntryStub
@@ -81,12 +82,7 @@ class ArchiveViewModel : AbsViewModel() {
         }
     }
 
-    fun getSubEntryMime(stub: ArchiveEntryStub): String? = when (stub.fileType) {
-        FileType.JPG -> "image/jpeg"
-        FileType.PNG -> "image/png"
-        FileType.SVG -> "image/svg+xml"
-        else -> null
-    }
+    fun getSubEntryMime(stub: ArchiveEntryStub): String? = MimeTypes.optMimeTypeByExtension(stub.extension)
 
     override fun onCleared() {
         archiveAccessor?.release()
