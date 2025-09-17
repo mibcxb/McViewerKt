@@ -46,6 +46,8 @@ dependencies {
     implementation(libs.slf4j.api)
     implementation(libs.slf4j.simple)
 
+    implementation(libs.apache.commons.compress)
+
     implementation(libs.jetbrains.lifecycle.runtime)
     implementation(libs.jetbrains.lifecycle.viewmodel)
     implementation(libs.jetbrains.navigation)

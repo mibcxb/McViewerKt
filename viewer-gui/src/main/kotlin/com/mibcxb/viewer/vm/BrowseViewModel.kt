@@ -17,6 +17,7 @@ import com.mibcxb.widget.compose.file.FileType
 import com.mibcxb.widget.compose.file.FileTypes
 import com.mibcxb.widget.compose.tree.FileItem
 import com.mibcxb.widget.compose.tree.FileTree
+import okio.Buffer
 import org.jetbrains.skia.EncodedImageFormat
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.SamplingMode
@@ -36,7 +37,7 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
     private val _previewImageStub = mutableStateOf<FileStub>(FileStubNone)
     val previewImageStub: State<FileStub> get() = _previewImageStub
 
-    private val _fileTypeList = mutableStateListOf(*FileTypes.images)
+    private val _fileTypeList = mutableStateListOf(*(FileTypes.images + FileTypes.archives))
     val fileTypeList: SnapshotStateList<FileType> get() = _fileTypeList
 
     private val fileFilter: FileFilter = FileFilter { file ->
@@ -85,7 +86,7 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
     }
 
     fun singleClickGridItem(stub: FileStub) {
-        changePreviewImageStub(stub.file)
+        changePreviewImageStub(File(stub.path))
     }
 
     fun doubleClickGridItem(stub: FileStub) {
@@ -111,9 +112,11 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
 
     fun goToParentPath() {
         val curStub = _fileStub.value
-        val newFile = curStub.file.parentFile
-        if (newFile != null) {
-            changeFileStub(newFile)
+        if (curStub is FileStubImpl) {
+            val newFile = curStub.file.parentFile
+            if (newFile != null) {
+                changeFileStub(newFile)
+            }
         }
     }
 
@@ -150,7 +153,7 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
     }
 
     private fun genThumbnail(curStub: FileStub): FileStub? {
-        if (!curStub.isImage()) {
+        if (curStub !is FileStubImpl || !curStub.isImage()) {
             return null
         }
 
@@ -188,8 +191,13 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
         return Image.makeFromEncoded(dataBytes).toComposeImageBitmap()
     }
 
+    fun getThumbBuffer(curStub: FileStub): Buffer? {
+        val dataBytes = getThumbnail(curStub) ?: return null
+        return Buffer().write(dataBytes)
+    }
+
     fun getThumbnail(curStub: FileStub): ByteArray? {
-        if (!curStub.isImage()) {
+        if (curStub !is FileStubImpl || !curStub.isImage()) {
             return null
         }
         val curBytes = cacheApi.obtainCacheThumb(curStub.path)

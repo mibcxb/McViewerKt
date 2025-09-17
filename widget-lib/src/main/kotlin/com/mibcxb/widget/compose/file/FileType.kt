@@ -5,5 +5,7 @@ enum class FileType(val extensions: Array<String> = emptyArray()) {
     DIR,
     JPG(arrayOf("jpg", "jpeg")),
     PNG(arrayOf("png")),
-    SVG(arrayOf("svg"));
+    SVG(arrayOf("svg")),
+    ZIP(arrayOf("zip")),
+    SevenZ(arrayOf("7z"));
 }

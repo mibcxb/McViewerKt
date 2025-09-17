@@ -1,5 +1,6 @@
 package com.mibcxb.widget.compose.grid
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,13 +29,15 @@ import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
-import com.mibcxb.widget.compose.coil.FileStubFetcher
+import coil3.decode.DataSource
+import com.mibcxb.widget.compose.coil.DelegateFetcher
 import com.mibcxb.widget.compose.coil.FileStubKeyer
 import com.mibcxb.widget.compose.file.FileStub
 import com.mibcxb.widget.compose.file.FileType
 import com.mibcxb.widget.widget_lib.generated.resources.Res
 import com.mibcxb.widget.widget_lib.generated.resources.file_unknown
 import com.mibcxb.widget.widget_lib.generated.resources.folder_normal
+import okio.Buffer
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
@@ -44,7 +47,8 @@ fun FileGridView(
     modifier: Modifier = Modifier,
     onSingleClick: (FileStub) -> Unit = {},
     onDoubleClick: (FileStub) -> Unit = {},
-    cacheLoader: (FileStub) -> ByteArray? = { null },
+    cacheLoader: (FileStub) -> Buffer? = { null },
+    errorLoader: (FileStub) -> DrawableResource? = { null },
     imageLoader: (FileStub) -> DrawableResource? = { null }
 ) {
     if (fileStub.fileType != FileType.DIR) {
@@ -73,25 +77,36 @@ fun FileGridView(
                         .fillMaxSize()
                         .clip(RoundedCornerShape(8.dp))
                 ) {
-                    val drawable = imageLoader(fileItem)
+                    val fallback = errorLoader(fileItem)
                         ?: if (fileStub.isDirectory()) Res.drawable.folder_normal else Res.drawable.file_unknown
                     val platformContext = LocalPlatformContext.current
-                    AsyncImage(
-                        model = fileItem,
-                        contentDescription = null,
-                        error = painterResource(drawable),
-                        placeholder = painterResource(drawable),
-                        contentScale = ContentScale.Fit,
-                        imageLoader = ImageLoader.Builder(platformContext).components {
-                            add(FileStubKeyer())
-                            add(
-                                FileStubFetcher.Factory(
-                                    repo = cacheLoader,
-                                    mime = { "image/png" }
-                                ))
-                        }.build(),
-                        modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f)
-                    )
+                    Box(modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f)) {
+                        AsyncImage(
+                            model = fileItem,
+                            contentDescription = null,
+                            error = painterResource(fallback),
+                            placeholder = painterResource(fallback),
+                            contentScale = ContentScale.Fit,
+                            imageLoader = ImageLoader.Builder(platformContext).components {
+                                add(FileStubKeyer())
+                                add(
+                                    DelegateFetcher.Factory(
+                                        source = DataSource.DISK,
+                                        getData = cacheLoader,
+                                        getMime = { "image/png" }
+                                    ))
+                            }.build(),
+                            modifier = Modifier.fillMaxSize()
+                        )
+                        val fileTypeImage = imageLoader(fileItem)
+                        if (fileTypeImage != null) {
+                            Image(
+                                painterResource(fileTypeImage),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp).align(Alignment.BottomEnd)
+                            )
+                        }
+                    }
                     Text(
                         fileItem.name,
                         maxLines = 2,

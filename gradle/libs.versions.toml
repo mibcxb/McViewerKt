@@ -2,18 +2,18 @@
 # https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
 
 [versions]
-kotlin = "2.2.10"
-ksp = "2.2.10-2.0.2"
+kotlin = "2.2.20"
+ksp = "2.2.20-2.0.3"
 gson = "2.10.1"
 slf4j = "2.0.17"
 moshi = "1.15.1"
 coroutinesBom = "1.8.0"
 serialization = "1.9.0"
-lifecycle = "2.9.2"
-navigation = "2.9.0-beta05"
+lifecycle = "2.9.4"
+navigation = "2.9.0"
 retrofitBom = "2.11.0"
 okhttpBom = "4.12.0"
-composePlugin = "1.8.2"
+composePlugin = "1.9.0"
 protobuf = "4.27.3"
 fileKit = "0.10.0"
 coil = "3.3.0"
@@ -29,7 +29,8 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 jetbrains-lifecycle-runtime = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
 jetbrains-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 jetbrains-navigation = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
-jetbrains-material3-adaptive = { group = "org.jetbrains.compose.material3.adaptive", name = "adaptive", version = "1.2.0-alpha05" }
+jetbrains-window = { group = "org.jetbrains.androidx.window", name = "window-core", version = "1.4.0" }
+jetbrains-material3-adaptive = { group = "org.jetbrains.compose.material3.adaptive", name = "adaptive", version = "1.2.0-alpha06" }
 squareup-retrofit-bom = { group = "com.squareup.retrofit2", name = "retrofit-bom", version.ref = "retrofitBom" }
 squareup-retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit" }
 squareup-retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson" }
@@ -43,7 +44,8 @@ google-protobuf-bom = { group = "com.google.protobuf", name = "protobuf-bom", ve
 google-protobuf-java = { group = "com.google.protobuf", name = "protobuf-java" }
 google-protobuf-kotlin = { group = "com.google.protobuf", name = "protobuf-kotlin" }
 apache-commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version = "3.18.0" }
-apache-commons-io = { group = "commons-io", name = "commons-io", version = "2.14.0" }
+apache-commons-compress = { group = "org.apache.commons", name = "commons-compress", version = "1.28.0" }
+apache-commons-io = { group = "commons-io", name = "commons-io", version = "2.20.0" }
 apache-commons-cli = { group = "commons-cli", name = "commons-cli", version = "1.9.0" }
 vinceglb-filekit-core = { group = "io.github.vinceglb", name = "filekit-core", version.ref = "fileKit" }
 vinceglb-filekit-dialogs = { group = "io.github.vinceglb", name = "filekit-dialogs", version.ref = "fileKit" }

@@ -27,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -39,28 +38,24 @@ import com.mibcxb.viewer.vm.BrowseViewModel
 import com.mibcxb.viewer_gui.generated.resources.Res
 import com.mibcxb.viewer_gui.generated.resources.ic_clipboard_copy
 import com.mibcxb.viewer_gui.generated.resources.ic_clipboard_paste
-import com.mibcxb.viewer_gui.generated.resources.ic_content_copy
-import com.mibcxb.viewer_gui.generated.resources.ic_content_cut
-import com.mibcxb.viewer_gui.generated.resources.ic_content_paste
 import com.mibcxb.viewer_gui.generated.resources.ic_enter
+import com.mibcxb.viewer_gui.generated.resources.ic_file_archive
 import com.mibcxb.viewer_gui.generated.resources.ic_file_image
 import com.mibcxb.viewer_gui.generated.resources.ic_folder
-import com.mibcxb.viewer_gui.generated.resources.ic_folder_create
-import com.mibcxb.viewer_gui.generated.resources.ic_folder_delete
 import com.mibcxb.viewer_gui.generated.resources.ic_folder_plus
 import com.mibcxb.viewer_gui.generated.resources.ic_folder_remove
-import com.mibcxb.viewer_gui.generated.resources.ic_folder_sync
 import com.mibcxb.viewer_gui.generated.resources.ic_folder_up
-import com.mibcxb.viewer_gui.generated.resources.ic_folder_upward
-import com.mibcxb.viewer_gui.generated.resources.ic_return
 import com.mibcxb.viewer_gui.generated.resources.ic_scissors
-import com.mibcxb.viewer_gui.generated.resources.ic_send
+import com.mibcxb.viewer_gui.generated.resources.icon_filetype_jpg
+import com.mibcxb.viewer_gui.generated.resources.icon_filetype_png
+import com.mibcxb.viewer_gui.generated.resources.icon_filetype_svg
 import com.mibcxb.viewer_gui.generated.resources.menu_about
 import com.mibcxb.viewer_gui.generated.resources.menu_edit
 import com.mibcxb.viewer_gui.generated.resources.menu_file
 import com.mibcxb.viewer_gui.generated.resources.text_files
 import com.mibcxb.viewer_gui.generated.resources.text_preview
 import com.mibcxb.widget.compose.Divider
+import com.mibcxb.widget.compose.file.FileType
 import com.mibcxb.widget.compose.file.FileTypes
 import com.mibcxb.widget.compose.grid.FileGridView
 import com.mibcxb.widget.compose.tree.FileTreeView
@@ -131,14 +126,20 @@ private fun Content(colScope: ColumnScope, vm: BrowseViewModel, nav: NavControll
                 fileTree = fileTree,
                 modifier = Modifier.fillMaxWidth().weight(0.7f),
                 onSingleClick = { vm.singleClickTreeItem(it) },
-                onDoubleClick = { vm.doubleClickTreeItem(it) })
+                onDoubleClick = {
+                    when {
+                        FileTypes.isImage(it.fileType) -> nav.navigate(DetailScreen(it.path))
+                        FileTypes.isArchive(it.fileType) -> nav.navigate(ArchiveScreen(it.path))
+                        FileTypes.isDir(it.fileType) -> vm.doubleClickTreeItem(it)
+                    }
+                })
             Divider(appRes.dimen.dividerWidth)
             Preview(this, vm)
         }
         Divider(appRes.dimen.dividerWidth, vertical = true)
         Column(modifier = Modifier.weight(0.75f).fillMaxHeight()) {
             val fileStub by remember { vm.fileStub }
-            if (fileStub.file.exists() && fileStub.file.isDirectory) {
+            if (fileStub.exists() && fileStub.isDirectory()) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth().height(32.dp)
@@ -221,11 +222,26 @@ private fun Content(colScope: ColumnScope, vm: BrowseViewModel, nav: NavControll
                     onDoubleClick = {
                         when {
                             FileTypes.isImage(it.fileType) -> nav.navigate(DetailScreen(it.path))
+                            FileTypes.isArchive(it.fileType) -> nav.navigate(ArchiveScreen(it.path))
                             FileTypes.isDir(it.fileType) -> vm.doubleClickGridItem(it)
                         }
                     },
-                    cacheLoader = { vm.getThumbnail(it) },
-                    imageLoader = { if (fileStub.isDirectory()) Res.drawable.ic_folder else Res.drawable.ic_file_image }
+                    cacheLoader = { vm.getThumbBuffer(it) },
+                    errorLoader = {
+                        when {
+                            it.isDirectory() -> Res.drawable.ic_folder
+                            it.isArchive() -> Res.drawable.ic_file_archive
+                            else -> Res.drawable.ic_file_image
+                        }
+                    },
+                    imageLoader = {
+                        when (it.fileType) {
+                            FileType.JPG -> Res.drawable.icon_filetype_jpg
+                            FileType.PNG -> Res.drawable.icon_filetype_png
+                            FileType.SVG -> Res.drawable.icon_filetype_svg
+                            else -> null
+                        }
+                    }
                 )
                 Divider(appRes.dimen.dividerWidth)
                 Row(
@@ -251,9 +267,9 @@ private fun Preview(colScope: ColumnScope, vm: BrowseViewModel) = colScope.run {
         )
         Box(modifier = Modifier.fillMaxWidth().weight(1.0f).background(appRes.color.imagePreviewBackground)) {
             val previewImageStub by remember { vm.previewImageStub }
-            if (previewImageStub.file.exists() && previewImageStub.file.isFile) {
+            if (previewImageStub.exists() && previewImageStub.isFile()) {
                 AsyncImage(
-                    model = previewImageStub.file,
+                    model = previewImageStub.path,
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize()

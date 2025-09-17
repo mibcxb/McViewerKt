@@ -5,7 +5,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import java.io.File
 import java.io.FileFilter
 
-class FileStubImpl(override val file: File) : FileStub {
+class FileStubImpl(val file: File) : FileStub {
     override val path: String = file.canonicalPath
     override val name: String get() = file.name.ifEmpty { path }
 
@@ -38,4 +38,7 @@ class FileStubImpl(override val file: File) : FileStub {
             }
         }
     }
+
+    override fun exists(): Boolean = file.exists()
+    override fun isFile(): Boolean = file.isFile
 }

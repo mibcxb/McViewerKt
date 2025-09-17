@@ -8,6 +8,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.mibcxb.viewer.screen.ArchiveScreen
+import com.mibcxb.viewer.screen.ArchiveScreenView
 import com.mibcxb.viewer.screen.BrowseScreen
 import com.mibcxb.viewer.screen.BrowseScreenView
 import com.mibcxb.viewer.screen.DetailScreen
@@ -26,6 +28,10 @@ fun AppNav(navController: NavHostController = rememberNavController()) {
         composable<DetailScreen> { backStackEntry ->
             val detailScreen = backStackEntry.toRoute<DetailScreen>()
             DetailScreenView(filepath = detailScreen.filepath)
+        }
+        composable<ArchiveScreen> { backStackEntry ->
+            val archiveScreen = backStackEntry.toRoute<ArchiveScreen>()
+            ArchiveScreenView(filepath = archiveScreen.filepath)
         }
     }
 }

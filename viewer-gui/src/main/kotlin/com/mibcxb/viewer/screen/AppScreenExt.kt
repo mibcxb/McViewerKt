@@ -7,3 +7,6 @@ object BrowseScreen
 
 @Serializable
 data class DetailScreen(val filepath: String)
+
+@Serializable
+data class ArchiveScreen(val filepath: String)

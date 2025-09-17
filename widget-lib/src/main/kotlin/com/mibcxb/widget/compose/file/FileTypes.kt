@@ -3,7 +3,10 @@ package com.mibcxb.widget.compose.file
 import java.io.FileFilter
 
 object FileTypes {
-    val images: Array<FileType> = arrayOf(FileType.JPG, FileType.PNG, FileType.SVG)
+
+    fun isDir(fileType: FileType): Boolean = fileType == FileType.DIR
+
+    val images: Array<FileType> = arrayOf(FileType.JPG, FileType.PNG/*, FileType.SVG*/)
     val imageExtensions: Array<String> = images.flatMap { it.extensions.toList() }.toTypedArray()
 
     val imageFilter: FileFilter = FileFilter { file ->
@@ -12,5 +15,8 @@ object FileTypes {
 
     fun isImage(fileType: FileType): Boolean = images.contains(fileType)
 
-    fun isDir(fileType: FileType): Boolean = fileType == FileType.DIR
+    val archives: Array<FileType> = arrayOf(FileType.ZIP, FileType.SevenZ)
+    val archiveExtensions: Array<String> = archives.flatMap { it.extensions.toList() }.toTypedArray()
+
+    fun isArchive(fileType: FileType): Boolean = archives.contains(fileType)
 }

@@ -1,11 +1,9 @@
 package com.mibcxb.widget.compose.file
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import java.io.File
 import java.io.FileFilter
 
 interface FileStub {
-    val file: File
     val path: String
     val name: String
     val extension: String
@@ -18,6 +16,9 @@ interface FileStub {
 
     fun refreshStub(newStub: FileStub)
 
-    fun isImage(): Boolean = FileTypes.isImage(fileType)
+    fun exists(): Boolean
+    fun isFile(): Boolean
     fun isDirectory(): Boolean = FileTypes.isDir(fileType)
+    fun isImage(): Boolean = FileTypes.isImage(fileType)
+    fun isArchive(): Boolean = FileTypes.isArchive(fileType)
 }
