@@ -11,9 +11,7 @@ class ZipFileAccessor(fileStub: FileStub) : ArchiveAccessor(fileStub) {
 
     override fun prepare() {
         _zipFile = kotlin.runCatching {
-            val builder = ZipFile.Builder()
-            val zipFile = builder.setFile(fileStub.path).get()
-            zipFile
+            ZipFile.Builder().setFile(fileStub.path).get()
         }.onFailure { logger.warn(logTag, it.message, it) }.getOrNull()
     }
 

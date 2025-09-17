@@ -7,6 +7,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.mibcxb.viewer.archive.ArchiveAccessor
 import com.mibcxb.viewer.archive.ArchiveAccessorFactory
 import com.mibcxb.viewer.archive.ArchiveEntryStub
+import com.mibcxb.viewer.archive.SevenZAccessor
 import com.mibcxb.viewer.archive.ZipFileAccessor
 import com.mibcxb.widget.compose.file.FileStub
 import com.mibcxb.widget.compose.file.FileStubImpl
@@ -28,6 +29,7 @@ class ArchiveViewModel : AbsViewModel() {
     private val accessorFactory: ArchiveAccessorFactory = ArchiveAccessorFactory { fileStub ->
         when (fileStub.fileType) {
             FileType.ZIP -> ZipFileAccessor(fileStub)
+            FileType.SevenZ -> SevenZAccessor(fileStub)
             else -> null
         }
     }

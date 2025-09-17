@@ -47,6 +47,7 @@ apache-commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", v
 apache-commons-compress = { group = "org.apache.commons", name = "commons-compress", version = "1.28.0" }
 apache-commons-io = { group = "commons-io", name = "commons-io", version = "2.20.0" }
 apache-commons-cli = { group = "commons-cli", name = "commons-cli", version = "1.9.0" }
+tukaani-xz = { group = "org.tukaani", name = "xz", version = "1.10" }
 vinceglb-filekit-core = { group = "io.github.vinceglb", name = "filekit-core", version.ref = "fileKit" }
 vinceglb-filekit-dialogs = { group = "io.github.vinceglb", name = "filekit-dialogs", version.ref = "fileKit" }
 vinceglb-filekit-dialogs-compose = { group = "io.github.vinceglb", name = "filekit-dialogs-compose", version.ref = "fileKit" }

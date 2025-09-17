@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.slf4j.simple)
 
     implementation(libs.apache.commons.compress)
+    implementation(libs.tukaani.xz)
 
     implementation(libs.jetbrains.lifecycle.runtime)
     implementation(libs.jetbrains.lifecycle.viewmodel)
