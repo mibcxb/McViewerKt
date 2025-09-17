@@ -1,5 +1,7 @@
 package com.mibcxb.viewer.screen
 
+import androidx.compose.foundation.HorizontalScrollbar
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -8,13 +10,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -47,11 +52,14 @@ import org.jetbrains.compose.resources.painterResource
 fun ArchiveScreenView(vm: ArchiveViewModel = viewModel { ArchiveViewModel() }, filepath: String = "") {
     val appRes = LocalAppRes.current
     Row(modifier = Modifier.fillMaxSize()) {
+        val vScroll = rememberLazyListState()
+        val hScroll = rememberScrollState()
         Box(modifier = Modifier.weight(0.25f).fillMaxHeight()) {
             val subEntryList = remember { vm.subEntryList }
             LazyColumn(
+                state = vScroll,
                 contentPadding = PaddingValues(vertical = 8.dp),
-                modifier = Modifier.fillMaxSize().horizontalScroll(rememberScrollState())
+                modifier = Modifier.wrapContentWidth().fillMaxHeight().horizontalScroll(hScroll)
             ) {
                 items(subEntryList, key = { it.path }) {
                     Row(
@@ -81,6 +89,18 @@ fun ArchiveScreenView(vm: ArchiveViewModel = viewModel { ArchiveViewModel() }, f
                     }
                 }
             }
+            VerticalScrollbar(
+                adapter = rememberScrollbarAdapter(vScroll),
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .fillMaxHeight()
+            )
+            HorizontalScrollbar(
+                adapter = rememberScrollbarAdapter(hScroll),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+            )
         }
         Divider(appRes.dimen.dividerWidth, vertical = true)
         Box(modifier = Modifier.weight(0.75f).fillMaxHeight()) {
