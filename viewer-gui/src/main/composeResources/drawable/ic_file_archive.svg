@@ -1,18 +1,1 @@
-<svg
-  xmlns="http://www.w3.org/2000/svg"
-  width="24"
-  height="24"
-  viewBox="0 0 24 24"
-  fill="none"
-  stroke="currentColor"
-  stroke-width="2"
-  stroke-linecap="round"
-  stroke-linejoin="round"
->
-  <path d="M10 12v-1" />
-  <path d="M10 18v-2" />
-  <path d="M10 7V6" />
-  <path d="M14 2v4a2 2 0 0 0 2 2h4" />
-  <path d="M15.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v16a2 2 0 0 0 .274 1.01" />
-  <circle cx="10" cy="20" r="2" />
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f"><path d="M640-480v-80h80v80h-80Zm0 80h-80v-80h80v80Zm0 80v-80h80v80h-80ZM447-640l-80-80H160v480h400v-80h80v80h160v-400H640v80h-80v-80H447ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h240l80 80h320q33 0 56.5 23.5T880-640v400q0 33-23.5 56.5T800-160H160Zm0-80v-480 480Z"/></svg>

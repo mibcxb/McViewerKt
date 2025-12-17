@@ -7,6 +7,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.lifecycle.viewModelScope
 import com.mibcxb.common.skia.SkiaUtils
 import com.mibcxb.viewer.cache.CacheApi
 import com.mibcxb.viewer.cache.CacheSqlite
@@ -15,8 +16,12 @@ import com.mibcxb.widget.compose.file.FileStubImpl
 import com.mibcxb.widget.compose.file.FileStubNone
 import com.mibcxb.widget.compose.file.FileType
 import com.mibcxb.widget.compose.file.FileTypes
+import com.mibcxb.widget.compose.grid.FileGridSize
+import com.mibcxb.widget.compose.grid.FileSortType
 import com.mibcxb.widget.compose.tree.FileItem
 import com.mibcxb.widget.compose.tree.FileTree
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okio.Buffer
 import org.jetbrains.skia.EncodedImageFormat
 import org.jetbrains.skia.Image
@@ -40,6 +45,15 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
     private val _fileTypeList = mutableStateListOf(*(FileTypes.images + FileTypes.archives))
     val fileTypeList: SnapshotStateList<FileType> get() = _fileTypeList
 
+    private val _searchName = mutableStateOf("")
+    val searchName: State<String> get() = _searchName
+
+    private val _fileSortType = mutableStateOf(FileSortType.Filename)
+    val fileSortType: State<FileSortType> get() = _fileSortType
+
+    private val _fileGridSize = mutableStateOf(FileGridSize.Middle)
+    val fileGridSize: State<FileGridSize> get() = _fileGridSize
+
     private val fileFilter: FileFilter = FileFilter { file ->
         val extNames = fileTypeList.flatMap { it.extensions.toList() }
         when {
@@ -57,16 +71,18 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
         if (_fileTree.branches.isNotEmpty()) {
             return
         }
-        val rootList = File.listRoots().map { FileItem(it) }
-        _fileTree.branches.apply {
-            clear()
-            addAll(rootList)
-        }
-        val fileItem = rootList.firstOrNull()
-        if (fileItem != null) {
-            _selectedItem.value = fileItem
-            _fileStub.value = FileStubImpl(fileItem.file).apply { refreshList(fileFilter) }
-            _filePath.value = fileItem.path
+        viewModelScope.launch(Dispatchers.IO) {
+            val rootList = File.listRoots().filter { it.canRead() }.map { FileItem(it) }
+            _fileTree.branches.apply {
+                clear()
+                addAll(rootList)
+            }
+            val fileItem = rootList.firstOrNull()
+            if (fileItem != null) {
+                _selectedItem.value = fileItem
+                _fileStub.value = FileStubImpl(fileItem.file).apply { refreshList(fileFilter) }
+                _filePath.value = fileItem.path
+            }
         }
     }
 
@@ -104,10 +120,50 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
         }
     }
 
+    fun changeSearchName(newName: String) {
+        if (_searchName.value != newName) {
+            _searchName.value = newName
+        }
+    }
+
+    fun changeFileSortType(index: Int) {
+        val sortType = FileSortType.entries.getOrNull(index) ?: return
+        changeFileSortType(sortType)
+    }
+
+    fun changeFileSortType(newType: FileSortType) {
+        if (_fileSortType.value != newType) {
+            _fileSortType.value = newType
+        }
+    }
+
+    fun changeFileGridSize(index: Int) {
+        val sizeList = FileGridSize.entries.toList()
+        if (index in sizeList.indices) {
+            changeFileGridSize(sizeList[index])
+        }
+    }
+
+    fun changeFileGridSize(newSize: FileGridSize) {
+        if (_fileGridSize.value != newSize) {
+            _fileGridSize.value = newSize
+        }
+    }
+
+    fun removeSearchName() {
+        changeSearchName("")
+    }
+
     fun goToTargetPath() {
-        val newPath = _filePath.value
-        val newFile = File(newPath)
-        changeFileStub(newFile)
+        goToTargetPath(_filePath.value)
+    }
+
+    fun goToTargetPath(newPath: String) {
+//        logger.info("goToTargetPath: path='$newPath'")
+        if (newPath.isNotBlank()) {
+            val newFile = File(newPath)
+            changeFileStub(newFile)
+        }
     }
 
     fun goToParentPath() {
@@ -135,7 +191,6 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
             refreshList(fileFilter)
         }
         _filePath.value = newFile.canonicalPath
-
     }
 
     private fun changePreviewImageStub(newFile: File) {

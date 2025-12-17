@@ -5,6 +5,19 @@
     <string name="menu_edit">编辑</string>
     <string name="menu_about">关于</string>
 
+    <string name="item_small">小</string>
+    <string name="item_middle">中</string>
+    <string name="item_large">大</string>
+
     <string name="text_preview">预览</string>
     <string name="text_files">%1$s 个文件或文件夹</string>
+    <string name="text_create_folder">新建文件夹</string>
+    <string name="text_input_keyword">输入关键字过滤</string>
+
+    <string-array name="sort_type">
+        <item>文件名</item>
+        <item>大小</item>
+        <item>创建时间</item>
+        <item>修改时间</item>
+    </string-array>
 </resources>

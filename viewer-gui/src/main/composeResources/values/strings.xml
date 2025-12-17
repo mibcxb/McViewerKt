@@ -5,6 +5,19 @@
     <string name="menu_edit">Edit</string>
     <string name="menu_about">About</string>
 
+    <string name="item_small">SM</string>
+    <string name="item_middle">MD</string>
+    <string name="item_large">LG</string>
+
     <string name="text_preview">Preview</string>
     <string name="text_files">%1$s Files or Directories</string>
+    <string name="text_create_folder">Create Folder</string>
+    <string name="text_input_keyword">Input keyword</string>
+
+    <string-array name="sort_type">
+        <item>FileName</item>
+        <item>FileLength</item>
+        <item>CreateTime</item>
+        <item>LastModified</item>
+    </string-array>
 </resources>

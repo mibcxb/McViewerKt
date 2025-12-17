@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinKapt) apply false
     alias(libs.plugins.jetbrainsKotlinSerialization) apply false
     alias(libs.plugins.jetbrainsCompose) apply false
-    alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.composeCompiler) apply false
 }
 
 val mcCommonVersion by extra("1.0.0")

@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinJvm)
     alias(libs.plugins.jetbrainsKotlinSerialization)
     alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.composeCompiler)
 }
 val mcViewerVersion: String by rootProject.extra
 

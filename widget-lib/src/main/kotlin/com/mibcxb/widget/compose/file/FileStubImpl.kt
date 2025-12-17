@@ -22,9 +22,12 @@ class FileStubImpl(val file: File) : FileStub {
     override fun refreshList(filter: FileFilter) {
         synchronized(subFiles) {
             if (file.isDirectory) {
-                val nodeList = file.listFiles(filter).mapNotNull { FileStubImpl(it) }
                 subFiles.clear()
-                subFiles.addAll(nodeList)
+                val children = file.listFiles(filter)
+                if (children != null) {
+                    val nodeList = children.mapNotNull { FileStubImpl(it) }
+                    subFiles.addAll(nodeList)
+                }
             }
         }
     }

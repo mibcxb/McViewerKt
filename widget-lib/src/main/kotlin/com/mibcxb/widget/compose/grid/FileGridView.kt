@@ -26,6 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
@@ -41,29 +42,56 @@ import okio.Buffer
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
+enum class FileSortType {
+    Filename, FileLength, CreateTime, LastModified
+}
+
+enum class FileGridSize {
+    Small, Middle, Large
+}
+
 @Composable
 fun FileGridView(
     fileStub: FileStub,
     modifier: Modifier = Modifier,
+    sortType: FileSortType = FileSortType.Filename,
+    itemSize: FileGridSize = FileGridSize.Middle,
     onSingleClick: (FileStub) -> Unit = {},
     onDoubleClick: (FileStub) -> Unit = {},
     cacheLoader: (FileStub) -> Buffer? = { null },
     errorLoader: (FileStub) -> DrawableResource? = { null },
-    imageLoader: (FileStub) -> DrawableResource? = { null }
+    imageLoader: (FileStub) -> DrawableResource? = { null },
+    fileFilter: (FileStub) -> Boolean = { true }
 ) {
     if (fileStub.fileType != FileType.DIR) {
         return
     }
+    val itemWidth = when(itemSize) {
+        FileGridSize.Small -> 96.dp
+        FileGridSize.Large -> 144.dp
+        else -> 120.dp
+    }
+    val itemHeight = when(itemSize) {
+        FileGridSize.Small -> 128.dp
+        FileGridSize.Large -> 192.dp
+        else -> 160.dp
+    }
+    val fontSize = when(itemSize) {
+        FileGridSize.Small -> 14.sp
+        FileGridSize.Large -> 16.sp
+        else -> 16.sp
+    }
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(120.dp),
+        columns = GridCells.Adaptive(itemWidth),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = modifier
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = modifier
     ) {
-        items(fileStub.subFiles, key = { it.path }) { fileItem ->
+        items(fileStub.subFiles.filter(fileFilter), key = { it.path }) { fileItem ->
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(96.dp, 144.dp)
+                modifier = Modifier.size(itemWidth, itemHeight)
                     .clip(RoundedCornerShape(8.dp))
                     .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
                     .combinedClickable(
@@ -109,6 +137,7 @@ fun FileGridView(
                     }
                     Text(
                         fileItem.name,
+                        fontSize = fontSize,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         textAlign = TextAlign.Center,

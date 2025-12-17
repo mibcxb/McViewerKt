@@ -16,6 +16,7 @@ import androidx.compose.ui.window.application
 import com.mibcxb.viewer.app.AppNav
 import com.mibcxb.viewer.app.AppResImpl
 import com.mibcxb.viewer.app.LocalAppRes
+import com.mibcxb.viewer.app.NewNav
 import com.mibcxb.viewer_gui.generated.resources.Res
 import com.mibcxb.viewer_gui.generated.resources.app_name
 import com.mibcxb.viewer_gui.generated.resources.oppo_sans
@@ -26,12 +27,13 @@ fun main() = application {
     val appTypography = InterTypography()
     Window(
         title = stringResource(Res.string.app_name),
-        state = WindowState(position = WindowPosition.Aligned(Alignment.Center), width = 1024.dp, height = 768.dp),
+        state = WindowState(position = WindowPosition.Aligned(Alignment.Center), width = 1280.dp, height = 800.dp),
         onCloseRequest = ::exitApplication
     ) {
         CompositionLocalProvider(LocalAppRes provides AppResImpl()) {
             MaterialTheme(typography = appTypography) {
-                AppNav()
+//                AppNav()
+                NewNav()
             }
         }
     }

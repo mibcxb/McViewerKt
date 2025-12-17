@@ -44,7 +44,7 @@ import com.mibcxb.viewer_gui.generated.resources.ic_file_image
 import com.mibcxb.viewer_gui.generated.resources.ic_folder
 import com.mibcxb.viewer_gui.generated.resources.ic_folder_plus
 import com.mibcxb.viewer_gui.generated.resources.ic_folder_remove
-import com.mibcxb.viewer_gui.generated.resources.ic_folder_up
+import com.mibcxb.viewer_gui.generated.resources.ic_folder_upward
 import com.mibcxb.viewer_gui.generated.resources.ic_scissors
 import com.mibcxb.viewer_gui.generated.resources.icon_filetype_jpg
 import com.mibcxb.viewer_gui.generated.resources.icon_filetype_png
@@ -169,7 +169,7 @@ private fun Content(colScope: ColumnScope, vm: BrowseViewModel, nav: NavControll
                         onClick = { vm.goToParentPath() },
                         modifier = Modifier.padding(start = appRes.dimen.paddingSmall).size(appRes.dimen.iconButtonSize)
                     ) {
-                        Image(painterResource(Res.drawable.ic_folder_up), contentDescription = null)
+                        Image(painterResource(Res.drawable.ic_folder_upward), contentDescription = null)
                     }
                     IconButton(
                         onClick = { },
