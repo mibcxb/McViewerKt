@@ -18,6 +18,7 @@ object AppDimenDef : AppDimen {
     override val paddingSmall: Dp = 4.dp
     override val paddingPanel: Dp = 8.dp
     override val paddingLarge: Dp = 16.dp
+    override val paddingGiant: Dp = 24.dp
 
     override val cornerNormal: Dp = 8.dp
     override val dividerWidth: Dp = 1.dp
@@ -35,4 +36,6 @@ object AppDimenDef : AppDimen {
     override val searchNameIcon: Dp = 20.dp
 
     override val pathArrowSize: Dp = 16.dp
+
+    override val detailIconSize: Dp = 32.dp
 }

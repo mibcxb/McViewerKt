@@ -55,6 +55,7 @@ import com.mibcxb.viewer_gui.generated.resources.ic_folder_upward
 import com.mibcxb.viewer_gui.generated.resources.ic_next
 import com.mibcxb.viewer_gui.generated.resources.ic_refresh
 import com.mibcxb.viewer_gui.generated.resources.ic_search
+import com.mibcxb.viewer_gui.generated.resources.ic_settings
 import com.mibcxb.viewer_gui.generated.resources.ic_sort
 import com.mibcxb.viewer_gui.generated.resources.ic_zoom_in
 import com.mibcxb.viewer_gui.generated.resources.ic_zoom_out
@@ -107,13 +108,22 @@ fun BrowseScreenViewNew(vm: BrowseViewModel = viewModel { BrowseViewModel() }, n
 
 @Composable
 private fun ToolbarView(vm: BrowseViewModel, modifier: Modifier = Modifier) {
-//    val appRes = LocalAppRes.current
-//    Row(
-//        modifier = modifier,
-//        verticalAlignment = Alignment.CenterVertically
-//    ) {
-//
-//    }
+    val appRes = LocalAppRes.current
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(
+            onClick = { },
+            modifier = Modifier.size(appRes.dimen.iconButtonSize)
+        ) {
+            Image(
+                painterResource(Res.drawable.ic_settings),
+                contentDescription = null,
+                modifier = Modifier.wrapContentSize()
+            )
+        }
+    }
 }
 
 @Composable

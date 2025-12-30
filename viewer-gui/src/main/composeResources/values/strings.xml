@@ -11,7 +11,7 @@
 
     <string name="text_preview">Preview</string>
     <string name="text_files">%1$s Files or Directories</string>
-    <string name="text_create_folder">Create Folder</string>
+    <string name="text_create_folder">New Folder</string>
     <string name="text_input_keyword">Input keyword</string>
 
     <string-array name="sort_type">

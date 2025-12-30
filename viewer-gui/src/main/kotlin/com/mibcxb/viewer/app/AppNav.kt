@@ -27,7 +27,7 @@ fun AppNav(navController: NavHostController = rememberNavController()) {
         }
         composable<DetailScreen> { backStackEntry ->
             val detailScreen = backStackEntry.toRoute<DetailScreen>()
-            DetailScreenView(filepath = detailScreen.filepath)
+            DetailScreenView(filepath = detailScreen.filepath, nav = navController)
         }
         composable<ArchiveScreen> { backStackEntry ->
             val archiveScreen = backStackEntry.toRoute<ArchiveScreen>()

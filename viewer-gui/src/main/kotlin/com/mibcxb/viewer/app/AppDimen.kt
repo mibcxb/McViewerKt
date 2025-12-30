@@ -7,6 +7,7 @@ interface AppDimen {
     val paddingSmall: Dp
     val paddingPanel: Dp
     val paddingLarge: Dp
+    val paddingGiant: Dp
 
     val cornerNormal: Dp
     val dividerWidth: Dp
@@ -24,4 +25,6 @@ interface AppDimen {
     val searchNameIcon: Dp
 
     val pathArrowSize: Dp
+
+    val detailIconSize: Dp
 }
