@@ -38,4 +38,7 @@ object AppDimenDef : AppDimen {
     override val pathArrowSize: Dp = 16.dp
 
     override val detailIconSize: Dp = 32.dp
+    override val detailPreviewWidth: Dp = 120.dp
+    override val detailPreviewHeight: Dp = 90.dp
+    override val detailTextSize: TextUnit=12.sp
 }

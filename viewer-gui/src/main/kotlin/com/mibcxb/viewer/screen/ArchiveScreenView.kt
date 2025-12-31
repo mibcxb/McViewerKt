@@ -36,6 +36,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.decode.DataSource
 import com.mibcxb.viewer.app.LocalAppRes
+import com.mibcxb.viewer.cache.CacheApi
 import com.mibcxb.widget.compose.file.archive.ArchiveEntryKeyer
 import com.mibcxb.viewer.vm.ArchiveViewModel
 import com.mibcxb.viewer_gui.generated.resources.Res
@@ -49,7 +50,11 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun ArchiveScreenView(vm: ArchiveViewModel = viewModel { ArchiveViewModel() }, filepath: String = "") {
+fun ArchiveScreenView(
+    cacheApi: CacheApi,
+    vm: ArchiveViewModel = viewModel { ArchiveViewModel(cacheApi) },
+    filepath: String = ""
+) {
     val appRes = LocalAppRes.current
     Row(modifier = Modifier.fillMaxSize()) {
         val vScroll = rememberLazyListState()

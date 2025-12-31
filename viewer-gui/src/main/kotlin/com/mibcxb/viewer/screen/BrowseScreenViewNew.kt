@@ -43,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.mibcxb.viewer.app.LocalAppRes
+import com.mibcxb.viewer.cache.CacheApi
 import com.mibcxb.viewer.vm.BrowseViewModel
 import com.mibcxb.viewer_gui.generated.resources.Res
 import com.mibcxb.viewer_gui.generated.resources.ic_cancel
@@ -81,11 +82,14 @@ import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
 import java.io.File
 import java.nio.file.Paths
-import kotlin.io.path.pathString
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BrowseScreenViewNew(vm: BrowseViewModel = viewModel { BrowseViewModel() }, nav: NavController) {
+fun BrowseScreenViewNew(
+    cacheApi: CacheApi,
+    vm: BrowseViewModel = viewModel { BrowseViewModel(cacheApi) },
+    nav: NavController
+) {
     val appRes = LocalAppRes.current
     Column(modifier = Modifier.fillMaxSize()) {
         ToolbarView(

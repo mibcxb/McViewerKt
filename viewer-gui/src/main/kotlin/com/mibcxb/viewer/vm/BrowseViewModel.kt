@@ -29,7 +29,7 @@ import org.jetbrains.skia.SamplingMode
 import java.io.File
 import java.io.FileFilter
 
-class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
+class BrowseViewModel(cacheApi: CacheApi = CacheSqlite()) : AbsViewModel(cacheApi) {
     private val _fileTree = FileTree()
     val fileTree: FileTree get() = _fileTree
 
@@ -205,65 +205,5 @@ class BrowseViewModel(val cacheApi: CacheApi = CacheSqlite()) : AbsViewModel() {
             return
         }
         _previewImageStub.value = FileStubImpl(newFile)
-    }
-
-    private fun genThumbnail(curStub: FileStub): FileStub? {
-        if (curStub !is FileStubImpl || !curStub.isImage()) {
-            return null
-        }
-
-        val path = curStub.path
-        val file = curStub.file
-        if (cacheApi.isPathExists(path)) {
-            return null
-        }
-
-        val dataBytes = genThumbSkia(file)
-        if (dataBytes != null) {
-            if (cacheApi.insertCacheThumb(path, dataBytes)) {
-                return FileStubImpl(file)
-            }
-        }
-        return null
-    }
-
-    private fun genThumbSkia(
-        file: File,
-        target: Size = Size(160f, 120f),
-        format: EncodedImageFormat = EncodedImageFormat.PNG,
-        samplingMode: SamplingMode = SamplingMode.DEFAULT,
-        quality: Int = 90
-    ): ByteArray? = kotlin.runCatching {
-        if (FileType.SVG.extensions.contains(file.extension.lowercase())) {
-            SkiaUtils.svgThumb(file.readBytes(), target = target, format = format, quality = quality)
-        } else {
-            SkiaUtils.genThumb(file.readBytes(), target, format, samplingMode, quality)
-        }
-    }.onFailure { logger.error(logTag, it.message, it) }.getOrNull()
-
-    fun getThumbBitmap(curStub: FileStub): ImageBitmap? {
-        val dataBytes = getThumbnail(curStub) ?: return null
-        return Image.makeFromEncoded(dataBytes).toComposeImageBitmap()
-    }
-
-    fun getThumbBuffer(curStub: FileStub): Buffer? {
-        val dataBytes = getThumbnail(curStub) ?: return null
-        return Buffer().write(dataBytes)
-    }
-
-    fun getThumbnail(curStub: FileStub): ByteArray? {
-        if (curStub !is FileStubImpl || !curStub.isImage()) {
-            return null
-        }
-        val curBytes = cacheApi.obtainCacheThumb(curStub.path)
-        if (curBytes != null) {
-            return curBytes
-        }
-        val newBytes = genThumbSkia(curStub.file)
-        if (newBytes != null) {
-            val flag = cacheApi.insertCacheThumb(curStub.path, newBytes)
-            logger.debug("insertCacheThumb: $flag, path: ${curStub.path}, size: ${newBytes.size}")
-        }
-        return newBytes
     }
 }

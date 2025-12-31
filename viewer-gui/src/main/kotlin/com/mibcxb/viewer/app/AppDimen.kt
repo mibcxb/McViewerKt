@@ -27,4 +27,7 @@ interface AppDimen {
     val pathArrowSize: Dp
 
     val detailIconSize: Dp
+    val detailPreviewWidth: Dp
+    val detailPreviewHeight: Dp
+    val detailTextSize: TextUnit
 }
