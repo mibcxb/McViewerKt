@@ -30,4 +30,8 @@ interface AppDimen {
     val detailPreviewWidth: Dp
     val detailPreviewHeight: Dp
     val detailTextSize: TextUnit
+
+    val archiveItemHeightMin: Dp
+    val archiveItemHeightMax: Dp
+    val archiveItemIconSize: Dp
 }

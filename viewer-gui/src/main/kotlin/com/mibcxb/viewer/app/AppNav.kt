@@ -34,7 +34,7 @@ fun AppNav(navController: NavHostController = rememberNavController()) {
         }
         composable<ArchiveScreen> { backStackEntry ->
             val archiveScreen = backStackEntry.toRoute<ArchiveScreen>()
-            ArchiveScreenView(cacheApi = cacheApi, filepath = archiveScreen.filepath)
+            ArchiveScreenView(cacheApi = cacheApi, filepath = archiveScreen.filepath, nav = navController)
         }
     }
 }

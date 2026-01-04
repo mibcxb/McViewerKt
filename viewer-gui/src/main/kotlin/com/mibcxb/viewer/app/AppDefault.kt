@@ -41,4 +41,8 @@ object AppDimenDef : AppDimen {
     override val detailPreviewWidth: Dp = 120.dp
     override val detailPreviewHeight: Dp = 90.dp
     override val detailTextSize: TextUnit=12.sp
+
+    override val archiveItemHeightMin: Dp = 16.dp
+    override val archiveItemHeightMax: Dp = 24.dp
+    override val archiveItemIconSize: Dp = 20.dp
 }
