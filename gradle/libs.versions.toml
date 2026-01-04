@@ -17,6 +17,7 @@ composePlugin = "1.9.3"
 protobuf = "4.28.2"
 fileKit = "0.12.0"
 coil = "3.3.0"
+composablesIcons = "2.2.1"
 
 [libraries]
 google-gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
@@ -56,6 +57,32 @@ coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref 
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 viascom-nanoid = { group = "io.viascom.nanoid", name = "nanoid", version = "1.0.1" }
 xerial-sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version = "3.45.0.0" }
+composables-icons-bootstrap-filled = { group = "com.composables", name = "icons-bootstrap-fill-cmp", version.ref = "composablesIcons" }
+composables-icons-bootstrap-outlined = { group = "com.composables", name = "icons-bootstrap-outline-cmp", version.ref = "composablesIcons" }
+composables-icons-codicons = { group = "com.composables", name = "icons-codicons-cmp", version.ref = "composablesIcons" }
+composables-icons-feather = { group = "com.composables", name = "icons-feather-cmp", version.ref = "composablesIcons" }
+composables-icons-font-awesome-solid = { group = "com.composables", name = "icons-font-awesome-solid-cmp", version.ref = "composablesIcons" }
+composables-icons-font-awesome-regular = { group = "com.composables", name = "icons-font-awesome-regular-cmp", version.ref = "composablesIcons" }
+composables-icons-font-awesome-brands = { group = "com.composables", name = "icons-font-awesome-brands-cmp", version.ref = "composablesIcons" }
+composables-icons-heroicons-outlined = { group = "com.composables", name = "icons-heroicons-outline-cmp", version.ref = "composablesIcons" }
+composables-icons-heroicons-solid = { group = "com.composables", name = "icons-heroicons-solid-cmp", version.ref = "composablesIcons" }
+composables-icons-heroicons-mini = { group = "com.composables", name = "icons-heroicons-mini-cmp", version.ref = "composablesIcons" }
+composables-icons-heroicons-micro = { group = "com.composables", name = "icons-heroicons-micro-cmp", version.ref = "composablesIcons" }
+composables-icons-lucide = { group = "com.composables", name = "icons-lucide-cmp", version.ref = "composablesIcons" }
+composables-icons-material-icons-filled = { group = "com.composables", name = "icons-material-icons-filled-cmp", version.ref = "composablesIcons" }
+composables-icons-material-icons-outlined = { group = "com.composables", name = "icons-material-icons-outlined-cmp", version.ref = "composablesIcons" }
+composables-icons-material-icons-rounded = { group = "com.composables", name = "icons-material-icons-rounded-cmp", version.ref = "composablesIcons" }
+composables-icons-material-icons-sharp = { group = "com.composables", name = "icons-material-icons-sharp-cmp", version.ref = "composablesIcons" }
+composables-icons-material-icons-twotone = { group = "com.composables", name = "icons-material-icons-twotone-cmp", version.ref = "composablesIcons" }
+composables-icons-material-symbols-outlined = { group = "com.composables", name = "icons-material-symbols-outlined-cmp", version.ref = "composablesIcons" }
+composables-icons-material-symbols-rounded = { group = "com.composables", name = "icons-material-symbols-rounded-cmp", version.ref = "composablesIcons" }
+composables-icons-material-symbols-sharp = { group = "com.composables", name = "icons-material-symbols-sharp-cmp", version.ref = "composablesIcons" }
+composables-icons-material-symbols-outlined-filled = { group = "com.composables", name = "icons-material-symbols-outlined-filled-cmp", version.ref = "composablesIcons" }
+composables-icons-material-symbols-rounded-filled = { group = "com.composables", name = "icons-material-symbols-rounded-filled-cmp", version.ref = "composablesIcons" }
+composables-icons-material-symbols-sharp-filled = { group = "com.composables", name = "icons-material-symbols-sharp-filled-cmp", version.ref = "composablesIcons" }
+composables-icons-radix = { group = "com.composables", name = "icons-radix-cmp", version.ref = "composablesIcons" }
+composables-icons-tabler-outlined = { group = "com.composables", name = "icons-tabler-outline-cmp", version.ref = "composablesIcons" }
+composables-icons-tabler-filled = { group = "com.composables", name = "icons-tabler-filled-cmp", version.ref = "composablesIcons" }
 
 [plugins]
 jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
