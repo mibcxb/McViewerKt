@@ -3,9 +3,9 @@ package com.mibcxb.widget.compose.file.archive
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.mibcxb.widget.compose.file.FileStub
+import com.mibcxb.widget.compose.file.FileStubFilter
 import com.mibcxb.widget.compose.file.FileType
 import org.apache.commons.compress.archivers.ArchiveEntry
-import java.io.FileFilter
 import kotlin.collections.contains
 import kotlin.io.path.Path
 import kotlin.io.path.name
@@ -36,7 +36,7 @@ abstract class ArchiveEntryStub(val archiveEntry: ArchiveEntry) : FileStub {
         get() = mutableStateListOf<FileStub>()
 
 
-    override fun refreshList(filter: FileFilter) {
+    override fun refreshList(filter: FileStubFilter) {
         // do nothing
     }
 

@@ -74,9 +74,14 @@ import com.mibcxb.viewer_gui.generated.resources.text_preview
 import com.mibcxb.widget.compose.Divider
 import com.mibcxb.widget.compose.file.FileType
 import com.mibcxb.widget.compose.file.FileTypes
+import com.mibcxb.widget.compose.file.samba.SmbFileStub
+import com.mibcxb.widget.compose.file.samba.SmbManager
 import com.mibcxb.widget.compose.grid.FileGridSize
 import com.mibcxb.widget.compose.grid.FileGridView
-import com.mibcxb.widget.compose.tree.FileTreeView
+import com.mibcxb.widget.compose.tree.FileItem
+import com.mibcxb.widget.compose.tree.SmbTreeItem
+import com.mibcxb.widget.compose.tree.TreeItem
+import com.mibcxb.widget.compose.tree.TreeView
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
@@ -87,13 +92,15 @@ import java.nio.file.Paths
 @Composable
 fun BrowseScreenViewNew(
     cacheApi: CacheApi,
-    vm: BrowseViewModel = viewModel { BrowseViewModel(cacheApi) },
+    smbManager: SmbManager,
+    vm: BrowseViewModel = viewModel { BrowseViewModel(cacheApi, smbManager) },
     nav: NavController
 ) {
     val appRes = LocalAppRes.current
     Column(modifier = Modifier.fillMaxSize()) {
         ToolbarView(
             vm,
+            nav,
             modifier = Modifier.fillMaxWidth().height(appRes.dimen.functionHeight)
                 .padding(horizontal = appRes.dimen.paddingLarge)
         )
@@ -111,14 +118,14 @@ fun BrowseScreenViewNew(
 }
 
 @Composable
-private fun ToolbarView(vm: BrowseViewModel, modifier: Modifier = Modifier) {
+private fun ToolbarView(vm: BrowseViewModel, nav: NavController, modifier: Modifier = Modifier) {
     val appRes = LocalAppRes.current
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(
-            onClick = { },
+            onClick = { nav.navigate(SettingScreen) },
             modifier = Modifier.size(appRes.dimen.iconButtonSize)
         ) {
             Image(
@@ -372,24 +379,19 @@ private fun PathRowView(vm: BrowseViewModel, modifier: Modifier = Modifier) {
     ) {
         val filePath by remember { vm.filePath }
         if (filePath.isNotBlank()) {
-            val segments = mutableListOf<String>()
-            val path = Paths.get(filePath).normalize()
-            if (path.root != null) {
-                segments.add(path.root.toString())
-            }
-            if (path.nameCount > 0) {
-                path.forEach { segments.add(it.toString()) }
+            val segments = if (filePath.startsWith("//")) {
+                buildSmbPathSegments(filePath)
+            } else {
+                buildLocalPathSegments(filePath)
             }
             LazyRow(modifier = Modifier.weight(1f)) {
                 itemsIndexed(segments) { index, segment ->
                     PathSegmentView(index, segment, index == segments.lastIndex) {
-//                        val segList = segments.subList(0, it + 1)
-//                        val newPath = if (segList.size > 1) {
-//                            Paths.get(segList.first(), *segList.subList(1, segList.size).toTypedArray())
-//                        } else {
-//                            Paths.get(segList.first(), File.separator)
-//                        }
-                        val newPath = segments.subList(0, it + 1).joinToString(File.separator)
+                        val newPath = if (filePath.startsWith("//")) {
+                            buildSmbPathFromSegments(segments, it)
+                        } else {
+                            segments.subList(0, it + 1).joinToString(File.separator)
+                        }
                         vm.goToTargetPath(newPath)
                     }
                 }
@@ -405,6 +407,41 @@ private fun PathRowView(vm: BrowseViewModel, modifier: Modifier = Modifier) {
                 )
             }
         }
+    }
+}
+
+private fun buildLocalPathSegments(filePath: String): List<String> {
+    val segments = mutableListOf<String>()
+    val path = Paths.get(filePath).normalize()
+    if (path.root != null) {
+        segments.add(path.root.toString())
+    }
+    if (path.nameCount > 0) {
+        path.forEach { segments.add(it.toString()) }
+    }
+    return segments
+}
+
+private fun buildSmbPathSegments(filePath: String): List<String> {
+    val segments = mutableListOf<String>()
+    val parsed = SmbFileStub.parseSmbPath(filePath)
+    if (parsed != null) {
+        val (host, share, remotePath) = parsed
+        segments.add("//$host/$share")
+        if (remotePath.isNotEmpty()) {
+            segments.addAll(remotePath.split("/").filter { it.isNotEmpty() })
+        }
+    }
+    return segments
+}
+
+private fun buildSmbPathFromSegments(segments: List<String>, endIndex: Int): String {
+    val root = segments.first()
+    val subPaths = segments.drop(1).take(endIndex)
+    return if (subPaths.isEmpty()) {
+        root
+    } else {
+        "$root/${subPaths.joinToString("/")}"
     }
 }
 
@@ -433,18 +470,42 @@ private fun ContentView(vm: BrowseViewModel, nav: NavController, modifier: Modif
     val appRes = LocalAppRes.current
     Row(modifier = modifier) {
         Column(modifier = Modifier.weight(0.25f).fillMaxHeight()) {
-            val fileTree = remember { vm.fileTree }
-            FileTreeView(
-                fileTree = fileTree,
+            val treeRoots = remember { vm.treeRoots }
+            TreeView(
+                rootList = treeRoots,
                 modifier = Modifier.fillMaxWidth().weight(1f),
-                onSingleClick = { vm.singleClickTreeItem(it) },
-                onDoubleClick = {
-                    when {
-                        FileTypes.isImage(it.fileType) -> nav.navigate(DetailScreen(it.path))
-                        FileTypes.isArchive(it.fileType) -> nav.navigate(ArchiveScreen(it.path))
-                        FileTypes.isDir(it.fileType) -> vm.doubleClickTreeItem(it)
+                onSingleClick = { item ->
+                    when (item) {
+                        is FileItem -> vm.singleClickTreeItem(item)
+                        is SmbTreeItem -> vm.singleClickSmbTreeItem(item)
                     }
-                })
+                },
+                onDoubleClick = { item ->
+                    when (item) {
+                        is FileItem -> {
+                            when {
+                                FileTypes.isImage(item.fileType) -> nav.navigate(DetailScreen(item.path))
+                                FileTypes.isArchive(item.fileType) -> nav.navigate(ArchiveScreen(item.path))
+                                FileTypes.isDir(item.fileType) -> vm.doubleClickTreeItem(item)
+                            }
+                        }
+                        is SmbTreeItem -> vm.doubleClickSmbTreeItem(item)
+                    }
+                },
+                iconLoader = { item ->
+                    when (item) {
+                        is FileItem -> {
+                            when (item.fileType) {
+                                FileType.NAN -> null
+                                FileType.DIR -> Res.drawable.ic_folder
+                                else -> Res.drawable.ic_file_image
+                            }
+                        }
+                        is SmbTreeItem -> Res.drawable.ic_folder
+                        else -> null
+                    }
+                }
+            )
             Divider(appRes.dimen.dividerWidth)
             Preview(vm, modifier = Modifier.fillMaxWidth().fillMaxHeight(0.35f))
         }
@@ -475,8 +536,12 @@ private fun ContentView(vm: BrowseViewModel, nav: NavController, modifier: Modif
                     onSingleClick = { vm.singleClickGridItem(it) },
                     onDoubleClick = {
                         when {
-                            FileTypes.isImage(it.fileType) -> nav.navigate(DetailScreen(it.path))
-                            FileTypes.isArchive(it.fileType) -> nav.navigate(ArchiveScreen(it.path))
+                            FileTypes.isImage(it.fileType) -> {
+                                nav.navigate(DetailScreen(it.path))
+                            }
+                            FileTypes.isArchive(it.fileType) -> {
+                                nav.navigate(ArchiveScreen(it.path))
+                            }
                             FileTypes.isDir(it.fileType) -> vm.doubleClickGridItem(it)
                         }
                     },

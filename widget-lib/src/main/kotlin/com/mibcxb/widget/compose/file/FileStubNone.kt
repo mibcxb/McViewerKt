@@ -2,7 +2,6 @@ package com.mibcxb.widget.compose.file
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import java.io.FileFilter
 
 object FileStubNone : FileStub {
     override val path: String = ""
@@ -14,7 +13,7 @@ object FileStubNone : FileStub {
     override val createdAt: Long = 0L
     override val subFiles: SnapshotStateList<FileStub> = mutableStateListOf()
 
-    override fun refreshList(filter: FileFilter) {
+    override fun refreshList(filter: FileStubFilter) {
         // nothing to do
     }
 

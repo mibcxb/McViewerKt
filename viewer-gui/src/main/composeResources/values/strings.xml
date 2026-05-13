@@ -20,4 +20,32 @@
         <item>CreateTime</item>
         <item>LastModified</item>
     </string-array>
+
+    <string name="tab_samba">Samba</string>
+    <string name="cd_back">Back</string>
+    <string name="text_samba_connections">Samba Connections</string>
+    <string name="cd_add_connection">Add Connection</string>
+    <string name="text_no_samba_share">No connected Samba shares</string>
+    <string name="text_connected">Connected</string>
+    <string name="text_disconnected">Disconnected</string>
+    <string name="cd_disconnect">Disconnect</string>
+    <string name="title_add_samba_conn">Add Samba Connection</string>
+    <string name="label_host">Host</string>
+    <string name="label_share">Share</string>
+    <string name="text_guest_anonymous">Connect as guest/anonymous</string>
+    <string name="label_domain_opt">Domain (optional)</string>
+    <string name="label_username">Username</string>
+    <string name="label_password">Password</string>
+    <string name="btn_connect">Connect</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="error_smb_empty">Host and Share are required</string>
+    <string name="cd_refresh_sessions">Refresh</string>
+    <string name="cd_show_password">Show password</string>
+    <string name="cd_hide_password">Hide password</string>
+    <string name="text_save_connection">Save connection</string>
+    <string name="text_saved_connections">Saved Connections</string>
+    <string name="text_no_saved_connections">No saved connections</string>
+    <string name="cd_connect_saved">Connect</string>
+    <string name="cd_delete_saved">Delete</string>
+    <string name="error_smb_connect">Connection failed</string>
 </resources>

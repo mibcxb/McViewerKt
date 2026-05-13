@@ -36,7 +36,6 @@ dependencies {
 
     implementation(libs.viascom.nanoid)
     implementation(libs.xerial.sqlite.jdbc)
-    implementation(libs.hierynomus.smbj)
 }
 
 tasks.test {

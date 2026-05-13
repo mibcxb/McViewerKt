@@ -57,6 +57,7 @@ import com.mibcxb.viewer_gui.generated.resources.text_preview
 import com.mibcxb.widget.compose.Divider
 import com.mibcxb.widget.compose.file.FileType
 import com.mibcxb.widget.compose.file.FileTypes
+import com.mibcxb.widget.compose.file.samba.SmbManager
 import com.mibcxb.widget.compose.grid.FileGridView
 import com.mibcxb.widget.compose.tree.FileTreeView
 import org.jetbrains.compose.resources.painterResource
@@ -64,7 +65,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BrowseScreenView(vm: BrowseViewModel = viewModel { BrowseViewModel() }, nav: NavController) {
+fun BrowseScreenView(vm: BrowseViewModel = viewModel { BrowseViewModel(smbManager = SmbManager()) }, nav: NavController) {
     val appRes = LocalAppRes.current
     Column(modifier = Modifier.fillMaxSize()) {
         MenuBar(this)

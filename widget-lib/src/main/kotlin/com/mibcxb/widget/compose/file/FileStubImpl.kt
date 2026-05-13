@@ -3,7 +3,6 @@ package com.mibcxb.widget.compose.file
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import java.io.File
-import java.io.FileFilter
 import java.nio.file.Files
 import java.nio.file.attribute.BasicFileAttributes
 
@@ -31,13 +30,16 @@ class FileStubImpl(val file: File) : FileStub {
 
     override val subFiles: SnapshotStateList<FileStub> = mutableStateListOf<FileStub>()
 
-    override fun refreshList(filter: FileFilter) {
+    override fun refreshList(filter: FileStubFilter) {
         synchronized(subFiles) {
             if (file.isDirectory) {
                 subFiles.clear()
-                val children = file.listFiles(filter)
+                val children = file.listFiles()
                 if (children != null) {
-                    val nodeList = children.mapNotNull { FileStubImpl(it) }
+                    val nodeList = children
+                        .filterNot { it.isHidden }
+                        .mapNotNull { FileStubImpl(it) }
+                        .filter { filter(it) }
                     subFiles.addAll(nodeList)
                 }
             }

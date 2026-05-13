@@ -6,6 +6,9 @@ import kotlinx.serialization.Serializable
 object BrowseScreen
 
 @Serializable
+object SettingScreen
+
+@Serializable
 data class DetailScreen(val filepath: String)
 
 @Serializable

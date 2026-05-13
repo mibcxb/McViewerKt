@@ -11,6 +11,7 @@ import com.mibcxb.viewer.log.LogApi
 import com.mibcxb.widget.compose.file.FileStub
 import com.mibcxb.widget.compose.file.FileStubImpl
 import com.mibcxb.widget.compose.file.FileType
+import com.mibcxb.widget.compose.file.samba.SmbFileStub
 import okio.Buffer
 import org.jetbrains.skia.EncodedImageFormat
 import org.jetbrains.skia.Image
@@ -30,14 +31,21 @@ abstract class AbsViewModel(protected val cacheApi: CacheApi = CacheSqlite()) : 
     }
 
     fun getThumbnail(curStub: FileStub): ByteArray? {
-        if (curStub !is FileStubImpl || !curStub.isImage()) {
+        if (!curStub.isImage()) {
             return null
         }
         val curBytes = cacheApi.obtainCacheThumb(curStub.path)
         if (curBytes != null) {
             return curBytes
         }
-        val newBytes = genThumbSkia(curStub.file)
+        val newBytes = when (curStub) {
+            is FileStubImpl -> genThumbSkia(curStub.file)
+            is SmbFileStub -> {
+                val data = curStub.getInputStream()?.use { it.readBytes() } ?: return null
+                genThumbSkia(data, curStub.extension)
+            }
+            else -> return null
+        }
         if (newBytes != null) {
             val flag = cacheApi.insertCacheThumb(curStub.path, newBytes)
             logger.debug("insertCacheThumb: $flag, path: ${curStub.path}, size: ${newBytes.size}")
@@ -51,11 +59,20 @@ abstract class AbsViewModel(protected val cacheApi: CacheApi = CacheSqlite()) : 
         format: EncodedImageFormat = EncodedImageFormat.PNG,
         samplingMode: SamplingMode = SamplingMode.DEFAULT,
         quality: Int = 90
+    ): ByteArray? = genThumbSkia(file.readBytes(), file.extension, target, format, samplingMode, quality)
+
+    private fun genThumbSkia(
+        data: ByteArray,
+        extension: String,
+        target: Size = Size(160f, 120f),
+        format: EncodedImageFormat = EncodedImageFormat.PNG,
+        samplingMode: SamplingMode = SamplingMode.DEFAULT,
+        quality: Int = 90
     ): ByteArray? = kotlin.runCatching {
-        if (FileType.SVG.extensions.contains(file.extension.lowercase())) {
-            SkiaUtils.svgThumb(file.readBytes(), target = target, format = format, quality = quality)
+        if (FileType.SVG.extensions.contains(extension.lowercase())) {
+            SkiaUtils.svgThumb(data, target = target, format = format, quality = quality)
         } else {
-            SkiaUtils.genThumb(file.readBytes(), target, format, samplingMode, quality)
+            SkiaUtils.genThumb(data, target, format, samplingMode, quality)
         }
     }.onFailure { logger.error(logTag, it.message, it) }.getOrNull()
 

@@ -20,4 +20,32 @@
         <item>创建时间</item>
         <item>修改时间</item>
     </string-array>
+
+    <string name="tab_samba">Samba</string>
+    <string name="cd_back">返回</string>
+    <string name="text_samba_connections">Samba连接</string>
+    <string name="cd_add_connection">添加连接</string>
+    <string name="text_no_samba_share">没有已连接的Samba共享</string>
+    <string name="text_connected">已连接</string>
+    <string name="text_disconnected">已断开</string>
+    <string name="cd_disconnect">断开连接</string>
+    <string name="title_add_samba_conn">添加Samba连接</string>
+    <string name="label_host">主机</string>
+    <string name="label_share">共享</string>
+    <string name="text_guest_anonymous">以游客/匿名身份连接</string>
+    <string name="label_domain_opt">域（可选）</string>
+    <string name="label_username">用户名</string>
+    <string name="label_password">密码</string>
+    <string name="btn_connect">连接</string>
+    <string name="btn_cancel">取消</string>
+    <string name="error_smb_empty">主机和共享名不能为空</string>
+    <string name="cd_refresh_sessions">刷新</string>
+    <string name="cd_show_password">显示密码</string>
+    <string name="cd_hide_password">隐藏密码</string>
+    <string name="text_save_connection">保存连接</string>
+    <string name="text_saved_connections">已保存的连接</string>
+    <string name="text_no_saved_connections">没有已保存的连接</string>
+    <string name="cd_connect_saved">连接</string>
+    <string name="cd_delete_saved">删除</string>
+    <string name="error_smb_connect">连接失败</string>
 </resources>

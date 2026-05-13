@@ -34,6 +34,7 @@ import coil3.decode.DataSource
 import com.mibcxb.widget.compose.coil.DelegateFetcher
 import com.mibcxb.widget.compose.file.FileStubKeyer
 import com.mibcxb.widget.compose.file.FileStub
+import com.mibcxb.widget.compose.file.FileStubFilter
 import com.mibcxb.widget.compose.file.FileType
 import com.mibcxb.widget.widget_lib.generated.resources.Res
 import com.mibcxb.widget.widget_lib.generated.resources.file_unknown
@@ -61,7 +62,7 @@ fun FileGridView(
     cacheLoader: (FileStub) -> Buffer? = { null },
     errorLoader: (FileStub) -> DrawableResource? = { null },
     imageLoader: (FileStub) -> DrawableResource? = { null },
-    fileFilter: (FileStub) -> Boolean = { true }
+    fileFilter: FileStubFilter = { true }
 ) {
     if (fileStub.fileType != FileType.DIR) {
         return

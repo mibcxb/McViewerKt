@@ -25,7 +25,7 @@ kotlin {
 }
 
 dependencies {
-    implementation(compose.desktop.common)
+    api(compose.desktop.common)
     implementation(compose.components.resources)
 
     implementation(platform(libs.kotlinx.coroutines.bom))
@@ -37,4 +37,6 @@ dependencies {
     implementation(libs.tukaani.xz)
 
     implementation(libs.coil.compose)
+
+    implementation(libs.hierynomus.smbj)
 }

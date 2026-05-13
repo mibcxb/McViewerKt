@@ -1,7 +1,8 @@
 package com.mibcxb.widget.compose.file
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import java.io.FileFilter
+
+typealias FileStubFilter = (FileStub) -> Boolean
 
 interface FileStub {
     val path: String
@@ -15,7 +16,7 @@ interface FileStub {
     val subCount: Int get() = subFiles.size
 
     fun refreshList() = refreshList { true }
-    fun refreshList(filter: FileFilter)
+    fun refreshList(filter: FileStubFilter)
 
     fun refreshStub(newStub: FileStub)
 

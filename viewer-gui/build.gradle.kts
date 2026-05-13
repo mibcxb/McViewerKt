@@ -59,6 +59,8 @@ dependencies {
     implementation(libs.vinceglb.filekit.dialogs.compose)
 
     implementation(libs.coil.compose)
+
+    implementation(libs.composables.icons.tabler.filled)
 }
 
 compose.desktop {

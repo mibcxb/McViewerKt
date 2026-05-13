@@ -13,25 +13,31 @@ import com.mibcxb.viewer.cache.CacheSqlite
 import com.mibcxb.viewer.screen.ArchiveScreen
 import com.mibcxb.viewer.screen.ArchiveScreenView
 import com.mibcxb.viewer.screen.BrowseScreen
-import com.mibcxb.viewer.screen.BrowseScreenView
 import com.mibcxb.viewer.screen.BrowseScreenViewNew
 import com.mibcxb.viewer.screen.DetailScreen
 import com.mibcxb.viewer.screen.DetailScreenView
+import com.mibcxb.viewer.screen.SettingScreen
+import com.mibcxb.viewer.screen.SettingScreenView
+import com.mibcxb.widget.compose.file.samba.SmbManager
 
 @Composable
 fun NewNav(navController: NavHostController = rememberNavController()) {
     val cacheApi = remember { CacheSqlite() }
+    val smbManager = remember { SmbManager() }
     NavHost(
         navController = navController,
         startDestination = BrowseScreen,
         modifier = Modifier.fillMaxSize()
     ) {
         composable<BrowseScreen> {
-            BrowseScreenViewNew(cacheApi = cacheApi, nav = navController)
+            BrowseScreenViewNew(cacheApi = cacheApi, smbManager = smbManager, nav = navController)
+        }
+        composable<SettingScreen> {
+            SettingScreenView(cacheApi = cacheApi, smbManager = smbManager, nav = navController)
         }
         composable<DetailScreen> { backStackEntry ->
             val detailScreen = backStackEntry.toRoute<DetailScreen>()
-            DetailScreenView(cacheApi = cacheApi, filepath = detailScreen.filepath, nav = navController)
+            DetailScreenView(cacheApi = cacheApi, smbManager = smbManager, filepath = detailScreen.filepath, nav = navController)
         }
         composable<ArchiveScreen> { backStackEntry ->
             val archiveScreen = backStackEntry.toRoute<ArchiveScreen>()
