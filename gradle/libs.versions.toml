@@ -2,21 +2,21 @@
 # https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
 
 [versions]
-kotlin = "2.3.20"
-ksp = "2.3.3"
-gson = "2.10.1"
-slf4j = "2.0.17"
-moshi = "1.15.1"
-coroutinesBom = "1.10.2"
-serialization = "1.9.0"
-lifecycle = "2.9.6"
-navigation = "2.9.1"
-retrofitBom = "2.11.0"
+kotlin = "2.3.21"
+ksp = "2.3.7"
+gson = "2.14.0"
+slf4j = "2.0.18"
+moshi = "1.15.2"
+coroutinesBom = "1.11.0"
+serialization = "1.11.0"
+lifecycle = "2.10.0"
+navigation = "2.9.2"
+retrofitBom = "2.12.0"
 okhttpBom = "4.12.0"
-composePlugin = "1.9.3"
-protobuf = "4.28.2"
-fileKit = "0.12.0"
-coil = "3.3.0"
+composePlugin = "1.10.3"
+protobuf = "4.34.1"
+fileKit = "0.14.1"
+coil = "3.4.0"
 composablesIcons = "2.2.1"
 
 [libraries]
@@ -30,8 +30,8 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 jetbrains-lifecycle-runtime = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
 jetbrains-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 jetbrains-navigation = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
-jetbrains-window = { group = "org.jetbrains.androidx.window", name = "window-core", version = "1.4.0" }
-jetbrains-material3-adaptive = { group = "org.jetbrains.compose.material3.adaptive", name = "adaptive", version = "1.2.0-alpha06" }
+jetbrains-window = { group = "org.jetbrains.androidx.window", name = "window-core", version = "1.5.1" }
+jetbrains-material3-adaptive = { group = "org.jetbrains.compose.material3.adaptive", name = "adaptive", version = "1.2.0" }
 squareup-retrofit-bom = { group = "com.squareup.retrofit2", name = "retrofit-bom", version.ref = "retrofitBom" }
 squareup-retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit" }
 squareup-retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson" }
@@ -44,11 +44,11 @@ squareup-moshi-kotlin-codegen = { group = "com.squareup.moshi", name = "moshi-ko
 google-protobuf-bom = { group = "com.google.protobuf", name = "protobuf-bom", version.ref = "protobuf" }
 google-protobuf-java = { group = "com.google.protobuf", name = "protobuf-java" }
 google-protobuf-kotlin = { group = "com.google.protobuf", name = "protobuf-kotlin" }
-apache-commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version = "3.18.0" }
+apache-commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version = "3.20.0" }
 apache-commons-compress = { group = "org.apache.commons", name = "commons-compress", version = "1.28.0" }
-apache-commons-io = { group = "commons-io", name = "commons-io", version = "2.20.0" }
-apache-commons-cli = { group = "commons-cli", name = "commons-cli", version = "1.9.0" }
-tukaani-xz = { group = "org.tukaani", name = "xz", version = "1.10" }
+apache-commons-io = { group = "commons-io", name = "commons-io", version = "2.22.0" }
+apache-commons-cli = { group = "commons-cli", name = "commons-cli", version = "1.11.0" }
+tukaani-xz = { group = "org.tukaani", name = "xz", version = "1.12" }
 vinceglb-filekit-core = { group = "io.github.vinceglb", name = "filekit-core", version.ref = "fileKit" }
 vinceglb-filekit-dialogs = { group = "io.github.vinceglb", name = "filekit-dialogs", version.ref = "fileKit" }
 vinceglb-filekit-dialogs-compose = { group = "io.github.vinceglb", name = "filekit-dialogs-compose", version.ref = "fileKit" }
@@ -56,7 +56,7 @@ vinceglb-filekit-coil = { group = "io.github.vinceglb", name = "filekit-coil", v
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 viascom-nanoid = { group = "io.viascom.nanoid", name = "nanoid", version = "1.0.1" }
-xerial-sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version = "3.45.0.0" }
+xerial-sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version = "3.53.1.0" }
 hierynomus-smbj = { group = "com.hierynomus", name = "smbj", version = "0.14.0" }
 composables-icons-bootstrap-filled = { group = "com.composables", name = "icons-bootstrap-fill-cmp", version.ref = "composablesIcons" }
 composables-icons-bootstrap-outlined = { group = "com.composables", name = "icons-bootstrap-outline-cmp", version.ref = "composablesIcons" }
@@ -92,4 +92,4 @@ jetbrainsKotlinKapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin"
 jetbrainsKotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "composePlugin" }
-googleProtobufPlugin = { id = "com.google.protobuf", version = "0.9.5" }
+googleProtobufPlugin = { id = "com.google.protobuf", version = "0.10.0" }
