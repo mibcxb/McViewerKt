@@ -8,6 +8,9 @@ interface FileStub {
     val name: String
     val extension: String
     val fileType: FileType
+    val length: Long
+    val lastModified: Long
+    val createdAt: Long
     val subFiles: SnapshotStateList<FileStub>
     val subCount: Int get() = subFiles.size
 

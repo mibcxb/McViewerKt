@@ -88,7 +88,17 @@ fun FileGridView(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = modifier
     ) {
-        items(fileStub.subFiles.filter(fileFilter), key = { it.path }) { fileItem ->
+        val sortedFiles = fileStub.subFiles.filter(fileFilter).sortedWith(
+            compareBy<FileStub> { !it.isDirectory() }.thenComparator { a, b ->
+                when (sortType) {
+                    FileSortType.Filename -> a.name.compareTo(b.name, ignoreCase = true)
+                    FileSortType.FileLength -> a.length.compareTo(b.length)
+                    FileSortType.CreateTime -> a.createdAt.compareTo(b.createdAt)
+                    FileSortType.LastModified -> a.lastModified.compareTo(b.lastModified)
+                }
+            }
+        )
+        items(sortedFiles, key = { it.path }) { fileItem ->
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.size(itemWidth, itemHeight)

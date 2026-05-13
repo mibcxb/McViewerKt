@@ -15,8 +15,8 @@
     <string name="text_input_keyword">输入关键字过滤</string>
 
     <string-array name="sort_type">
-        <item>文件名</item>
-        <item>大小</item>
+        <item>文件名称</item>
+        <item>文件大小</item>
         <item>创建时间</item>
         <item>修改时间</item>
     </string-array>

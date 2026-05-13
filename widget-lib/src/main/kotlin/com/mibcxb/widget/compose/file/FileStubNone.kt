@@ -9,6 +9,9 @@ object FileStubNone : FileStub {
     override val name: String = ""
     override val extension: String = ""
     override val fileType: FileType = FileType.NAN
+    override val length: Long = 0L
+    override val lastModified: Long = 0L
+    override val createdAt: Long = 0L
     override val subFiles: SnapshotStateList<FileStub> = mutableStateListOf()
 
     override fun refreshList(filter: FileFilter) {

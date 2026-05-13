@@ -4,6 +4,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import java.io.File
 import java.io.FileFilter
+import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributes
 
 class FileStubImpl(val file: File) : FileStub {
     override val path: String = file.canonicalPath
@@ -15,6 +17,16 @@ class FileStubImpl(val file: File) : FileStub {
         FileType.DIR
     } else {
         FileType.entries.find { it.extensions.contains(extension) } ?: FileType.NAN
+    }
+
+    override val length: Long get() = file.length()
+    override val lastModified: Long get() = file.lastModified()
+    override val createdAt: Long by lazy {
+        try {
+            Files.readAttributes(file.toPath(), BasicFileAttributes::class.java).creationTime().toMillis()
+        } catch (_: Exception) {
+            file.lastModified()
+        }
     }
 
     override val subFiles: SnapshotStateList<FileStub> = mutableStateListOf<FileStub>()

@@ -26,6 +26,12 @@ abstract class ArchiveEntryStub(val archiveEntry: ArchiveEntry) : FileStub {
     } else {
         FileType.entries.find { it.extensions.contains(extension) } ?: FileType.NAN
     }
+    override val length: Long
+        get() = archiveEntry.size
+    override val lastModified: Long
+        get() = archiveEntry.lastModifiedDate?.time ?: 0L
+    override val createdAt: Long
+        get() = lastModified
     override val subFiles: SnapshotStateList<FileStub>
         get() = mutableStateListOf<FileStub>()
 

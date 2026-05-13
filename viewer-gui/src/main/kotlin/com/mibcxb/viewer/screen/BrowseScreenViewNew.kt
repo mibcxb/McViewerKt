@@ -466,9 +466,11 @@ private fun ContentView(vm: BrowseViewModel, nav: NavController, modifier: Modif
                 Divider(appRes.dimen.dividerWidth, appRes.color.dividerNormal)
                 val fileGridSize by remember { vm.fileGridSize }
                 val searchName by remember { vm.searchName }
+                val sortType by remember { vm.fileSortType }
                 FileGridView(
                     fileStub = fileStub,
                     modifier = Modifier.fillMaxWidth().weight(1f),
+                    sortType = sortType,
                     itemSize = fileGridSize,
                     onSingleClick = { vm.singleClickGridItem(it) },
                     onDoubleClick = {
