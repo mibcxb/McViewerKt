@@ -11,7 +11,7 @@ import com.mibcxb.widget.compose.tree.Selectable
 import com.mibcxb.widget.compose.tree.TreeItem
 import java.io.InputStream
 
-typealias ViewerItemFilter = (ViewerPath) -> Boolean
+typealias ViewerItemFilter = (ViewerItem) -> Boolean
 
 @Stable
 class ViewerItem(
@@ -58,7 +58,7 @@ class ViewerItem(
         source?.let { src ->
             val paths = src.listChildren(path)
             children.clear()
-            children.addAll(paths.filter(filter).map { ViewerItem(it, source) })
+            children.addAll(paths.map { ViewerItem(it, source) }.filter(filter))
         }
     }
 
