@@ -12,8 +12,8 @@ import com.mibcxb.widget.compose.file.archive.ArchiveAccessorFactory
 import com.mibcxb.widget.compose.file.archive.ArchiveEntryStub
 import com.mibcxb.widget.compose.file.archive.SevenZAccessor
 import com.mibcxb.widget.compose.file.archive.ZipFileAccessor
-import com.mibcxb.widget.compose.file.FileStub
-import com.mibcxb.widget.compose.file.FileStubImpl
+import com.mibcxb.widget.compose.file.ViewerItem
+import com.mibcxb.widget.compose.file.ViewerPath
 import com.mibcxb.widget.compose.file.FileType
 import okio.Buffer
 import java.io.File
@@ -22,16 +22,16 @@ class ArchiveViewModel(cacheApi: CacheApi = CacheSqlite()) : AbsViewModel(cacheA
     private val _filepath = mutableStateOf("")
     val filepath: State<String> get() = _filepath
 
-    private val _subEntryList = mutableStateListOf<ArchiveEntryStub>()
-    val subEntryList: SnapshotStateList<ArchiveEntryStub> get() = _subEntryList
+    private val _subEntryList = mutableStateListOf<ViewerItem>()
+    val subEntryList: SnapshotStateList<ViewerItem> get() = _subEntryList
 
-    private val _subEntryStub = mutableStateOf<FileStub?>(null)
-    val subEntryStub: State<FileStub?> get() = _subEntryStub
+    private val _subEntryItem = mutableStateOf<ViewerItem?>(null)
+    val subEntryItem: State<ViewerItem?> get() = _subEntryItem
 
-    private val accessorFactory: ArchiveAccessorFactory = ArchiveAccessorFactory { fileStub ->
-        when (fileStub.fileType) {
-            FileType.ZIP -> ZipFileAccessor(fileStub)
-            FileType.SevenZ -> SevenZAccessor(fileStub)
+    private val accessorFactory: ArchiveAccessorFactory = ArchiveAccessorFactory { fileType, filePath ->
+        when (fileType) {
+            FileType.ZIP -> ZipFileAccessor(filePath)
+            FileType.SevenZ -> SevenZAccessor(filePath)
             else -> null
         }
     }
@@ -46,12 +46,11 @@ class ArchiveViewModel(cacheApi: CacheApi = CacheSqlite()) : AbsViewModel(cacheA
 
     private fun prepareArchive() {
         val archivePath = _filepath.value
-        val archiveFile = File(archivePath)
-        if (!archiveFile.exists() || !archiveFile.isFile) {
-            return
-        }
+        val vp = ViewerPath.parse(archivePath)
+        val archiveFile = File(vp.basePath)
+        if (!archiveFile.exists() || !archiveFile.isFile) return
 
-        val accessor = accessorFactory.createArchiveAccessor(FileStubImpl(archiveFile))
+        val accessor = accessorFactory.createArchiveAccessor(vp.fileType, vp.basePath)
         if (accessor != null) {
             archiveAccessor = accessor.apply { prepare() }
             val extensions = listOf(FileType.JPG, FileType.PNG).flatMap { it.extensions.toList() }.toTypedArray()
@@ -59,18 +58,24 @@ class ArchiveViewModel(cacheApi: CacheApi = CacheSqlite()) : AbsViewModel(cacheA
                 !stub.isDirectory() && stub.extension in extensions
             }
             _subEntryList.clear()
-            _subEntryList.addAll(imgEntryList)
+            _subEntryList.addAll(imgEntryList.map { entry ->
+                ViewerItem(
+                    ViewerPath.createArchived(vp, entry.archiveEntry.name),
+                    null
+                )
+            })
         }
     }
 
-    fun singleClickListItem(stub: FileStub) {
-        if (_subEntryStub.value != stub) {
-            _subEntryStub.value = stub
+    fun singleClickListItem(item: ViewerItem) {
+        if (_subEntryItem.value != item) {
+            _subEntryItem.value = item
         }
     }
 
-    fun getSubEntryData(stub: ArchiveEntryStub): Buffer? {
+    fun getSubEntryData(item: ViewerItem): Buffer? {
         val accessor = archiveAccessor ?: return null
+        val stub = ArchiveEntryStub.getByPath(accessor, item.path.entryPath) ?: return null
         val stream = accessor.getInputStream(stub) ?: return null
         return stream.use { stream ->
             val output = Buffer()
@@ -83,7 +88,7 @@ class ArchiveViewModel(cacheApi: CacheApi = CacheSqlite()) : AbsViewModel(cacheA
         }
     }
 
-    fun getSubEntryMime(stub: ArchiveEntryStub): String? = MimeTypes.optMimeTypeByExtension(stub.extension)
+    fun getSubEntryMime(item: ViewerItem): String? = MimeTypes.optMimeTypeByExtension(item.extension)
 
     override fun onCleared() {
         archiveAccessor?.release()

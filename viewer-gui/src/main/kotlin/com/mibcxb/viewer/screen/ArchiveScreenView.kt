@@ -52,7 +52,8 @@ import com.mibcxb.viewer_gui.generated.resources.icon_filetype_svg
 import com.mibcxb.widget.compose.Divider
 import com.mibcxb.widget.compose.coil.DelegateFetcher
 import com.mibcxb.widget.compose.file.FileType
-import com.mibcxb.widget.compose.file.archive.ArchiveEntryKeyer
+import com.mibcxb.widget.compose.file.ViewerItem
+import com.mibcxb.widget.compose.file.ViewerItemKeyer
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
@@ -92,7 +93,7 @@ fun ArchiveScreenView(
                     contentPadding = PaddingValues(vertical = appRes.dimen.paddingPanel),
                     modifier = Modifier.wrapContentWidth().fillMaxHeight().horizontalScroll(hScroll)
                 ) {
-                    items(subEntryList, key = { it.path }) {
+                    items(subEntryList, key = { it.id }) { item ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
@@ -101,13 +102,13 @@ fun ArchiveScreenView(
                                     max = appRes.dimen.archiveItemHeightMax
                                 )
                                 .combinedClickable(
-                                    onClick = { vm.singleClickListItem(it) },
+                                    onClick = { vm.singleClickListItem(item) },
                                     onDoubleClick = { }
                                 )
                         ) {
                             val iconSize = appRes.dimen.archiveItemIconSize
                             val hPadding = appRes.dimen.paddingPanel
-                            val drawable: DrawableResource? = when (it.fileType) {
+                            val drawable: DrawableResource? = when (item.fileType) {
                                 FileType.JPG -> Res.drawable.icon_filetype_jpg
                                 FileType.PNG -> Res.drawable.icon_filetype_png
                                 FileType.SVG -> Res.drawable.icon_filetype_svg
@@ -122,7 +123,7 @@ fun ArchiveScreenView(
                             } else {
                                 Spacer(modifier = Modifier.padding(start = hPadding, end = hPadding / 2).size(iconSize))
                             }
-                            Text(it.path, modifier = Modifier.padding(end = hPadding).wrapContentWidth())
+                            Text(item.path.entryPath.ifEmpty { item.name }, modifier = Modifier.padding(end = hPadding).wrapContentWidth())
                         }
                     }
                 }
@@ -142,15 +143,15 @@ fun ArchiveScreenView(
         }
         Divider(appRes.dimen.dividerWidth, vertical = true)
         Box(modifier = Modifier.weight(0.775f).fillMaxHeight()) {
-            val subEntryStub by remember { vm.subEntryStub }
-            if (subEntryStub != null) {
+            val subEntryItem by remember { vm.subEntryItem }
+            if (subEntryItem != null) {
                 val platformContext = LocalPlatformContext.current
                 AsyncImage(
-                    model = subEntryStub,
+                    model = subEntryItem,
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     imageLoader = ImageLoader.Builder(platformContext).components {
-                        add(ArchiveEntryKeyer())
+                        add(ViewerItemKeyer())
                         add(
                             DelegateFetcher.Factory(
                                 source = DataSource.DISK,
