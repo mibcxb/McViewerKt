@@ -13,7 +13,6 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
-import com.mibcxb.viewer.app.AppNav
 import com.mibcxb.viewer.app.AppResImpl
 import com.mibcxb.viewer.app.LocalAppRes
 import com.mibcxb.viewer.app.NewNav

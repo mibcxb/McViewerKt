@@ -1,56 +1,32 @@
 package com.mibcxb.widget.compose.file.archive
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.mibcxb.widget.compose.file.FileStub
-import com.mibcxb.widget.compose.file.FileStubFilter
 import com.mibcxb.widget.compose.file.FileType
 import org.apache.commons.compress.archivers.ArchiveEntry
-import kotlin.collections.contains
 import kotlin.io.path.Path
 import kotlin.io.path.name
 
-abstract class ArchiveEntryStub(val archiveEntry: ArchiveEntry) : FileStub {
+abstract class ArchiveEntryStub(val archiveEntry: ArchiveEntry) {
     protected val archiveEntryPath = Path(archiveEntry.name)
     val dirLevel = archiveEntryPath.nameCount
 
-    override val path: String
-        get() = archiveEntry.name
-    override val name: String
-        get() = archiveEntryPath.name
-
-    override val extension: String
-        get() = name.substringAfterLast(".")
-    override val fileType: FileType = if (archiveEntry.isDirectory) {
+    val path: String get() = archiveEntry.name
+    val name: String get() = archiveEntryPath.name
+    val extension: String get() = name.substringAfterLast(".")
+    val fileType: FileType = if (archiveEntry.isDirectory) {
         FileType.DIR
     } else {
         FileType.entries.find { it.extensions.contains(extension) } ?: FileType.NAN
     }
-    override val length: Long
-        get() = archiveEntry.size
-    override val lastModified: Long
-        get() = archiveEntry.lastModifiedDate?.time ?: 0L
-    override val createdAt: Long
-        get() = lastModified
-    override val subFiles: SnapshotStateList<FileStub>
-        get() = mutableStateListOf<FileStub>()
+    val length: Long get() = archiveEntry.size
+    val lastModified: Long get() = archiveEntry.lastModifiedDate?.time ?: 0L
+    val createdAt: Long get() = lastModified
 
-
-    override fun refreshList(filter: FileStubFilter) {
-        // do nothing
-    }
-
-    override fun refreshStub(newStub: FileStub) {
-        // do nothing
-    }
-
-    override fun exists(): Boolean = true
-
-    override fun isFile(): Boolean = !archiveEntry.isDirectory
+    fun isDirectory(): Boolean = archiveEntry.isDirectory
+    fun isFile(): Boolean = !archiveEntry.isDirectory
 
     companion object {
-        fun getByPath(accessor: ArchiveAccessor, path: String): ArchiveEntryStub? {
-            return accessor.getEntryList().find { it.path == path }
+        fun getByPath(accessor: ArchiveAccessor, entryPath: String): ArchiveEntryStub? {
+            return accessor.getEntryList().find { it.archiveEntry.name == entryPath }
         }
     }
 }
