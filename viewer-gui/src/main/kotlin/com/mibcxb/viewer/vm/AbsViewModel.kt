@@ -8,10 +8,8 @@ import com.mibcxb.common.skia.SkiaUtils
 import com.mibcxb.viewer.cache.CacheApi
 import com.mibcxb.viewer.cache.CacheSqlite
 import com.mibcxb.viewer.log.LogApi
-import com.mibcxb.widget.compose.file.FileStub
-import com.mibcxb.widget.compose.file.FileStubImpl
 import com.mibcxb.widget.compose.file.FileType
-import com.mibcxb.widget.compose.file.samba.SmbFileStub
+import com.mibcxb.widget.compose.file.ViewerItem
 import okio.Buffer
 import org.jetbrains.skia.EncodedImageFormat
 import org.jetbrains.skia.Image
@@ -19,36 +17,33 @@ import org.jetbrains.skia.SamplingMode
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
-import kotlin.collections.contains
 
 abstract class AbsViewModel(protected val cacheApi: CacheApi = CacheSqlite()) : ViewModel(), LogApi {
     override val logTag: String = javaClass.simpleName
     override val logger: Logger = LoggerFactory.getLogger(logTag)
 
-    fun getThumbBuffer(curStub: FileStub): Buffer? {
-        val dataBytes = getThumbnail(curStub) ?: return null
+    fun getThumbBuffer(curItem: ViewerItem): Buffer? {
+        val dataBytes = getThumbnail(curItem) ?: return null
         return Buffer().write(dataBytes)
     }
 
-    fun getThumbnail(curStub: FileStub): ByteArray? {
-        if (!curStub.isImage()) {
-            return null
-        }
-        val curBytes = cacheApi.obtainCacheThumb(curStub.path)
-        if (curBytes != null) {
-            return curBytes
-        }
-        val newBytes = when (curStub) {
-            is FileStubImpl -> genThumbSkia(curStub.file)
-            is SmbFileStub -> {
-                val data = curStub.getInputStream()?.use { it.readBytes() } ?: return null
-                genThumbSkia(data, curStub.extension)
+    fun getThumbnail(curItem: ViewerItem): ByteArray? {
+        if (!curItem.isImage) return null
+        val curBytes = cacheApi.obtainCacheThumb(curItem.path.raw)
+        if (curBytes != null) return curBytes
+        val newBytes = when {
+            curItem.isLocal -> {
+                genThumbSkia(File(curItem.path.basePath))
+            }
+            curItem.isSamba -> {
+                val data = curItem.getInputStream()?.use { it.readBytes() } ?: return null
+                genThumbSkia(data, curItem.extension)
             }
             else -> return null
         }
         if (newBytes != null) {
-            val flag = cacheApi.insertCacheThumb(curStub.path, newBytes)
-            logger.debug("insertCacheThumb: $flag, path: ${curStub.path}, size: ${newBytes.size}")
+            val flag = cacheApi.insertCacheThumb(curItem.path.raw, newBytes)
+            logger.debug("insertCacheThumb: $flag, path: ${curItem.path.raw}, size: ${newBytes.size}")
         }
         return newBytes
     }
@@ -76,29 +71,8 @@ abstract class AbsViewModel(protected val cacheApi: CacheApi = CacheSqlite()) : 
         }
     }.onFailure { logger.error(logTag, it.message, it) }.getOrNull()
 
-    private fun genThumbnail(curStub: FileStub): FileStub? {
-        if (curStub !is FileStubImpl || !curStub.isImage()) {
-            return null
-        }
-
-        val path = curStub.path
-        val file = curStub.file
-        if (cacheApi.isPathExists(path)) {
-            return null
-        }
-
-        val dataBytes = genThumbSkia(file)
-        if (dataBytes != null) {
-            if (cacheApi.insertCacheThumb(path, dataBytes)) {
-                return FileStubImpl(file)
-            }
-        }
-        return null
-    }
-
-
-    fun getThumbBitmap(curStub: FileStub): ImageBitmap? {
-        val dataBytes = getThumbnail(curStub) ?: return null
+    fun getThumbBitmap(curItem: ViewerItem): ImageBitmap? {
+        val dataBytes = getThumbnail(curItem) ?: return null
         return Image.makeFromEncoded(dataBytes).toComposeImageBitmap()
     }
 }
