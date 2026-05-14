@@ -1,17 +1,16 @@
 package com.mibcxb.widget.compose.file.archive
 
-import com.mibcxb.widget.compose.file.FileStub
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.io.IOUtils
 import java.io.InputStream
 
-class ZipFileAccessor(fileStub: FileStub) : ArchiveAccessor(fileStub) {
+class ZipFileAccessor(filePath: String) : ArchiveAccessor(filePath) {
     private var _zipFile: ZipFile? = null
 
     override fun prepare() {
         _zipFile = runCatching {
-            ZipFile.Builder().setFile(fileStub.path).get()
+            ZipFile.Builder().setFile(filePath).get()
         }.onFailure { logger.warn(logTag, it.message, it) }.getOrNull()
     }
 

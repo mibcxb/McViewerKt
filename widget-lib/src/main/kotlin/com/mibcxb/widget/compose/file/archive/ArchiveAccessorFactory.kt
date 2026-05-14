@@ -1,7 +1,7 @@
 package com.mibcxb.widget.compose.file.archive
 
-import com.mibcxb.widget.compose.file.FileStub
+import com.mibcxb.widget.compose.file.FileType
 
 fun interface ArchiveAccessorFactory {
-    fun createArchiveAccessor(fileStub: FileStub): ArchiveAccessor?
+    fun createArchiveAccessor(fileType: FileType, filePath: String): ArchiveAccessor?
 }

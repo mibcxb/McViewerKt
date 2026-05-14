@@ -1,18 +1,17 @@
 package com.mibcxb.widget.compose.file.archive
 
-import com.mibcxb.widget.compose.file.FileStub
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.apache.commons.io.IOUtils
 import java.io.InputStream
 
-class SevenZAccessor(fileStub: FileStub) : ArchiveAccessor(fileStub) {
+class SevenZAccessor(filePath: String) : ArchiveAccessor(filePath) {
 
     private var _sevenZFile: SevenZFile? = null
 
     override fun prepare() {
         _sevenZFile = runCatching {
-            SevenZFile.Builder().setFile(fileStub.path).get()
+            SevenZFile.Builder().setFile(filePath).get()
         }.onFailure { logger.warn(logTag, it.message, it) }.getOrNull()
     }
 
