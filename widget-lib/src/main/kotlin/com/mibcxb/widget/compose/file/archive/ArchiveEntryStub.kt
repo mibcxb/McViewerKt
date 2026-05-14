@@ -47,4 +47,10 @@ abstract class ArchiveEntryStub(val archiveEntry: ArchiveEntry) : FileStub {
     override fun exists(): Boolean = true
 
     override fun isFile(): Boolean = !archiveEntry.isDirectory
+
+    companion object {
+        fun getByPath(accessor: ArchiveAccessor, path: String): ArchiveEntryStub? {
+            return accessor.getEntryList().find { it.path == path }
+        }
+    }
 }
