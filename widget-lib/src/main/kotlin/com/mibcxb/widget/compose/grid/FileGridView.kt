@@ -32,9 +32,9 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.decode.DataSource
 import com.mibcxb.widget.compose.coil.DelegateFetcher
-import com.mibcxb.widget.compose.file.FileStubKeyer
-import com.mibcxb.widget.compose.file.FileStub
-import com.mibcxb.widget.compose.file.FileStubFilter
+import com.mibcxb.widget.compose.file.ViewerItemKeyer
+import com.mibcxb.widget.compose.file.ViewerItem
+import com.mibcxb.widget.compose.file.ViewerItemFilter
 import com.mibcxb.widget.compose.file.FileType
 import com.mibcxb.widget.widget_lib.generated.resources.Res
 import com.mibcxb.widget.widget_lib.generated.resources.file_unknown
@@ -53,18 +53,18 @@ enum class FileGridSize {
 
 @Composable
 fun FileGridView(
-    fileStub: FileStub,
+    item: ViewerItem,
     modifier: Modifier = Modifier,
     sortType: FileSortType = FileSortType.Filename,
     itemSize: FileGridSize = FileGridSize.Middle,
-    onSingleClick: (FileStub) -> Unit = {},
-    onDoubleClick: (FileStub) -> Unit = {},
-    cacheLoader: (FileStub) -> Buffer? = { null },
-    errorLoader: (FileStub) -> DrawableResource? = { null },
-    imageLoader: (FileStub) -> DrawableResource? = { null },
-    fileFilter: FileStubFilter = { true }
+    onSingleClick: (ViewerItem) -> Unit = {},
+    onDoubleClick: (ViewerItem) -> Unit = {},
+    cacheLoader: (ViewerItem) -> Buffer? = { null },
+    errorLoader: (ViewerItem) -> DrawableResource? = { null },
+    imageLoader: (ViewerItem) -> DrawableResource? = { null },
+    fileFilter: ViewerItemFilter = { true }
 ) {
-    if (fileStub.fileType != FileType.DIR) {
+    if (item.fileType != FileType.DIR) {
         return
     }
     val itemWidth = when(itemSize) {
@@ -89,8 +89,8 @@ fun FileGridView(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = modifier
     ) {
-        val sortedFiles = fileStub.subFiles.filter(fileFilter).sortedWith(
-            compareBy<FileStub> { !it.isDirectory() }.thenComparator { a, b ->
+        val sortedFiles = item.children.filter(fileFilter).sortedWith(
+            compareBy<ViewerItem> { !it.isDirectory }.thenComparator { a, b ->
                 when (sortType) {
                     FileSortType.Filename -> a.name.compareTo(b.name, ignoreCase = true)
                     FileSortType.FileLength -> a.length.compareTo(b.length)
@@ -99,7 +99,7 @@ fun FileGridView(
                 }
             }
         )
-        items(sortedFiles, key = { it.path }) { fileItem ->
+        items(sortedFiles, key = { it.id }) { fileItem ->
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.size(itemWidth, itemHeight)
@@ -117,7 +117,7 @@ fun FileGridView(
                         .clip(RoundedCornerShape(8.dp))
                 ) {
                     val fallback = errorLoader(fileItem)
-                        ?: if (fileStub.isDirectory()) Res.drawable.folder_normal else Res.drawable.file_unknown
+                        ?: if (item.isDirectory) Res.drawable.folder_normal else Res.drawable.file_unknown
                     val platformContext = LocalPlatformContext.current
                     Box(modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f)) {
                         AsyncImage(
@@ -127,7 +127,7 @@ fun FileGridView(
                             placeholder = painterResource(fallback),
                             contentScale = ContentScale.Fit,
                             imageLoader = ImageLoader.Builder(platformContext).components {
-                                add(FileStubKeyer())
+                                add(ViewerItemKeyer())
                                 add(
                                     DelegateFetcher.Factory(
                                         source = DataSource.DISK,
