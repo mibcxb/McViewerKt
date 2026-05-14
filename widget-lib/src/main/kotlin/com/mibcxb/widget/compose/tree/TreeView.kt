@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mibcxb.widget.compose.file.FileType
+import com.mibcxb.widget.compose.file.ViewerItem
 import com.mibcxb.widget.widget_lib.generated.resources.Res
 import com.mibcxb.widget.widget_lib.generated.resources.file
 import com.mibcxb.widget.widget_lib.generated.resources.folder_normal
@@ -111,9 +112,9 @@ private fun <T : TreeItem> TreeNodeView(
 fun FileTreeView(
     fileTree: FileTree,
     modifier: Modifier = Modifier,
-    onSingleClick: (FileItem) -> Unit = {},
-    onDoubleClick: (FileItem) -> Unit = {},
-    iconLoader: ((FileItem) -> DrawableResource?)? = {
+    onSingleClick: (ViewerItem) -> Unit = {},
+    onDoubleClick: (ViewerItem) -> Unit = {},
+    iconLoader: ((ViewerItem) -> DrawableResource?)? = {
         when (it.fileType) {
             FileType.NAN -> null
             FileType.DIR -> if (it.expanded) Res.drawable.folder_opened else Res.drawable.folder_normal
@@ -126,12 +127,12 @@ fun FileTreeView(
         modifier = modifier,
         onSingleClick = onSingleClick,
         onDoubleClick = onDoubleClick
-    ) {
+    ) { item ->
         if (iconLoader != null) {
-            iconLoader(it)
+            iconLoader(item)
         } else {
-            when (it.fileType) {
-                FileType.DIR -> if (it.expanded) Res.drawable.folder_opened else Res.drawable.folder_normal
+            when (item.fileType) {
+                FileType.DIR -> if (item.expanded) Res.drawable.folder_opened else Res.drawable.folder_normal
                 FileType.JPG -> Res.drawable.image
                 FileType.PNG -> Res.drawable.image
                 else -> null
