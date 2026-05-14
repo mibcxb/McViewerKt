@@ -5,12 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.mibcxb.viewer.cache.CacheApi
 import com.mibcxb.viewer.cache.CacheSqlite
-import com.mibcxb.widget.compose.file.FileStub
-import com.mibcxb.widget.compose.file.FileStubFilter
-import com.mibcxb.widget.compose.file.FileStubImpl
-import com.mibcxb.widget.compose.file.FileStubNone
+import com.mibcxb.widget.compose.file.ViewerItem
+import com.mibcxb.widget.compose.file.ViewerItemFilter
+import com.mibcxb.widget.compose.file.ViewerPath
 import com.mibcxb.widget.compose.file.FileTypes
-import com.mibcxb.widget.compose.file.samba.SmbFileStub
+import com.mibcxb.widget.compose.file.LocalSource
+import com.mibcxb.widget.compose.file.samba.SambaSource
 import com.mibcxb.widget.compose.file.samba.SmbManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,94 +22,90 @@ class DetailViewModel(
     private val smbManager: SmbManager? = null
 ) : AbsViewModel(cacheApi) {
 
-    private val _parentStub = mutableStateOf<FileStub>(FileStubNone)
-    val parentStub: State<FileStub> get() = _parentStub
+    private val _parentItem = mutableStateOf(emptyViewerItem)
+    val parentItem: State<ViewerItem> get() = _parentItem
 
-    private val _filePath = mutableStateOf("")
-    val filePath: State<String> get() = _filePath
+    private val _currentPath = mutableStateOf("")
+    val currentPath: State<String> get() = _currentPath
 
     private val _showList = mutableStateOf(false)
     val showList: State<Boolean> get() = _showList
 
-    private val fileFilter: FileStubFilter = { stub ->
+    private val fileFilter: ViewerItemFilter = { item ->
         val extNames = FileTypes.images.flatMap { it.extensions.toList() }
         when {
-            stub.isFile() -> extNames.contains(stub.extension)
+            item.isFile -> extNames.contains(item.extension)
             else -> false
         }
     }
 
+    companion object {
+        private val emptyViewerItem = ViewerItem(ViewerPath.parse(""))
+    }
+
     fun initFilePath(filepath: String) {
         viewModelScope.launch {
-            val smbPath = SmbFileStub.parseSmbPath(filepath)
-            if (smbPath != null) {
-                initSmbFilePath(smbPath, filepath)
-            } else {
-                initLocalFilePath(filepath)
+            val vp = ViewerPath.parse(filepath)
+            when (vp.scheme) {
+                ViewerPath.Scheme.Samba -> initSambaFilePath(vp)
+                ViewerPath.Scheme.File -> initLocalFilePath(vp)
             }
         }
     }
 
-    private suspend fun initSmbFilePath(smbPath: Triple<String, String, String>, filepath: String) {
-        val (host, share, remotePath) = smbPath
+    private suspend fun initSambaFilePath(vp: ViewerPath) {
+        val raw = vp.basePath.removePrefix("//")
+        val parts = raw.split("/").filter { it.isNotEmpty() }
+        if (parts.size < 2) return
+        val host = parts[0]
+        val share = parts[1]
+        val remotePath = parts.drop(2).joinToString("/")
         val session = smbManager?.getSession(host, share) ?: return
         withContext(Dispatchers.IO) {
-            val stub = SmbFileStub.create(host, share, remotePath, session)
-            if (!stub.exists() || !stub.isFile()) return@withContext
+            val source = SambaSource(session)
+            val item = ViewerItem(ViewerPath.create(host, share, remotePath), source)
+            if (!item.isFile) return@withContext
             val parentPath = remotePath.substringBeforeLast("/", "")
-            val parentStub = SmbFileStub.create(host, share, parentPath, session)
-            parentStub.refreshList(fileFilter)
-            _parentStub.value = parentStub
-            _filePath.value = filepath
+            val parentVp = ViewerPath.create(host, share, parentPath)
+            _parentItem.value = ViewerItem(parentVp, source).apply { refreshList(fileFilter) }
+            _currentPath.value = vp.raw
         }
     }
 
-    private suspend fun initLocalFilePath(filepath: String) {
+    private suspend fun initLocalFilePath(vp: ViewerPath) {
         withContext(Dispatchers.IO) {
-            val file = File(filepath)
+            val file = File(vp.basePath)
             if (file.exists() && file.isFile) {
                 val parent = file.parentFile
                 if (parent != null) {
-                    _parentStub.value = FileStubImpl(parent).apply { refreshList(fileFilter) }
+                    val source = LocalSource()
+                    _parentItem.value = ViewerItem(ViewerPath.create(parent), source).apply { refreshList(fileFilter) }
                 }
-                _filePath.value = filepath
+                _currentPath.value = vp.raw
             }
         }
     }
 
-    fun next() {
-        change(1)
-    }
-
-    fun prev() {
-        change(-1)
-    }
+    fun next() { change(1) }
+    fun prev() { change(-1) }
 
     private fun change(delta: Int) {
-        val fileStub = parentStub.value
-        if (!fileStub.isDirectory() || fileStub.subCount == 0) {
-            return
-        }
-        val filePath = filePath.value
-        if (filePath.isBlank()) {
-            return
-        }
-        val subFiles = fileStub.subFiles
-        val curIndex = subFiles.indexOfFirst { it.path == filePath }
-        if (curIndex == -1) {
-            return
-        }
+        val parent = _parentItem.value
+        if (!parent.isDirectory || parent.children.isEmpty()) return
+        val currentPath = _currentPath.value
+        if (currentPath.isBlank()) return
+        val subFiles = parent.children
+        val curIndex = subFiles.indexOfFirst { it.path.raw == currentPath }
+        if (curIndex == -1) return
         val newIndex = curIndex + delta
-        if (newIndex !in subFiles.indices) {
-            return
-        }
+        if (newIndex !in subFiles.indices) return
         val target = subFiles[newIndex]
-        changeFilePath(target.path)
+        changeFilePath(target.path.raw)
     }
 
     fun changeFilePath(newPath: String) {
-        if (_filePath.value != newPath) {
-            _filePath.value = newPath
+        if (_currentPath.value != newPath) {
+            _currentPath.value = newPath
         }
     }
 }
