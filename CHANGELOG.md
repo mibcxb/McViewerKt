@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-05-14
+
+- **ViewerPath**: unified path class supporting local files, Samba remote, and archive entries with `!/` separator format (`C:\archive.zip!/image.png`).
+- **ViewerSource**: abstract data source interface (`listChildren`, `getInputStream`, `exists`) for pluggable file I/O.
+- **LocalSource**: `ViewerSource` implementation wrapping `java.io.File`.
+- **SambaSource**: `ViewerSource` implementation wrapping `SmbSession`.
+- **ArchiveSource**: `ViewerSource` implementation wrapping `ArchiveAccessor`.
+- **ViewerItem**: unified tree node and grid element replacing `FileItem`, `SmbTreeItem`, `FileStub`, `FileStubImpl`, `SmbFileStub`, `ArchiveEntryStub`, `FileStubNone`.
+- **ViewerItemKeyer**: unified Coil3 keyer replacing `FileStubKeyer` and `ArchiveEntryKeyer`.
+- Removed legacy `BrowseScreenView` and `AppNav`.
+- Removed `FileType`-based tree/grid type branching — `ViewerItem` handles all schemes uniformly.
+- `ArchiveAccessor` decoupled from `FileStub` — now accepts `String` path and `FileType`.
+
 ## 2026-05-13
 
 - **SMB / Samba file browsing**: connect to SMB shares, browse remote directories in the sidebar tree, and view files in the grid.
