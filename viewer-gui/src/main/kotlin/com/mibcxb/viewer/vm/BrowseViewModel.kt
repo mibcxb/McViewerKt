@@ -11,20 +11,17 @@ import androidx.lifecycle.viewModelScope
 import com.mibcxb.common.skia.SkiaUtils
 import com.mibcxb.viewer.cache.CacheApi
 import com.mibcxb.viewer.cache.CacheSqlite
-import com.mibcxb.widget.compose.file.FileStub
-import com.mibcxb.widget.compose.file.FileStubFilter
-import com.mibcxb.widget.compose.file.FileStubImpl
-import com.mibcxb.widget.compose.file.FileStubNone
 import com.mibcxb.widget.compose.file.FileType
 import com.mibcxb.widget.compose.file.FileTypes
-import com.mibcxb.widget.compose.file.samba.SmbFileStub
+import com.mibcxb.widget.compose.file.LocalSource
+import com.mibcxb.widget.compose.file.ViewerItem
+import com.mibcxb.widget.compose.file.ViewerItemFilter
+import com.mibcxb.widget.compose.file.ViewerPath
+import com.mibcxb.widget.compose.file.samba.SambaSource
 import com.mibcxb.widget.compose.file.samba.SmbManager
 import com.mibcxb.widget.compose.grid.FileGridSize
 import com.mibcxb.widget.compose.grid.FileSortType
-import com.mibcxb.widget.compose.tree.FileItem
 import com.mibcxb.widget.compose.tree.FileTree
-import com.mibcxb.widget.compose.tree.SmbTreeItem
-import com.mibcxb.widget.compose.tree.TreeItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okio.Buffer
@@ -32,27 +29,25 @@ import org.jetbrains.skia.EncodedImageFormat
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.SamplingMode
 import java.io.File
-import java.io.FileFilter
 
 class BrowseViewModel(
     cacheApi: CacheApi = CacheSqlite(),
     private val smbManager: SmbManager
 ) : AbsViewModel(cacheApi) {
-    private val _treeRoots = mutableStateListOf<TreeItem>()
-    val treeRoots: SnapshotStateList<TreeItem> get() = _treeRoots
+    private val _treeRoots = mutableStateListOf<ViewerItem>()
+    val treeRoots: SnapshotStateList<ViewerItem> get() = _treeRoots
 
-    @Suppress("DEPRECATION")
     val fileTree: FileTree
-        get() = FileTree(_treeRoots.filterIsInstance<FileItem>().toList())
+        get() = FileTree(_treeRoots.toList())
 
-    private val _fileStub = mutableStateOf<FileStub>(FileStubNone)
-    val fileStub: State<FileStub> get() = _fileStub
+    private val _currentItem = mutableStateOf(emptyViewerItem)
+    val currentItem: State<ViewerItem> get() = _currentItem
 
-    private val _filePath = mutableStateOf("")
-    val filePath: State<String> get() = _filePath
+    private val _currentPath = mutableStateOf("")
+    val currentPath: State<String> get() = _currentPath
 
-    private val _previewImageStub = mutableStateOf<FileStub>(FileStubNone)
-    val previewImageStub: State<FileStub> get() = _previewImageStub
+    private val _previewImageItem = mutableStateOf(emptyViewerItem)
+    val previewImageItem: State<ViewerItem> get() = _previewImageItem
 
     private val _fileTypeList = mutableStateListOf(*(FileTypes.images + FileTypes.archives))
     val fileTypeList: SnapshotStateList<FileType> get() = _fileTypeList
@@ -66,29 +61,23 @@ class BrowseViewModel(
     private val _fileGridSize = mutableStateOf(FileGridSize.Middle)
     val fileGridSize: State<FileGridSize> get() = _fileGridSize
 
-    private val fileFilter: FileStubFilter = { stub ->
+    private val fileFilter: ViewerItemFilter = { item ->
         val extNames = fileTypeList.flatMap { it.extensions.toList() }
         when {
-            stub.isDirectory() -> true
-            stub.isFile() -> extNames.contains(stub.extension)
+            item.isDirectory -> true
+            item.isFile -> extNames.contains(item.extension)
             else -> false
         }
     }
 
-    private val treeFileFilter = FileFilter { file ->
-        val extNames = fileTypeList.flatMap { it.extensions.toList() }
-        when {
-            file.isHidden -> false
-            file.isFile -> extNames.contains(file.extension)
-            file.isDirectory -> true
-            else -> false
-        }
-    }
-
-    private val _selectedTreeItem = mutableStateOf<TreeItem?>(null)
-    val selectedTreeItem: State<TreeItem?> get() = _selectedTreeItem
+    private val _selectedTreeItem = mutableStateOf<ViewerItem?>(null)
+    val selectedTreeItem: State<ViewerItem?> get() = _selectedTreeItem
 
     private var treeInitializing = false
+
+    companion object {
+        private val emptyViewerItem = ViewerItem(ViewerPath.parse(""))
+    }
 
     fun initFileTree() {
         if (treeInitializing) return
@@ -99,13 +88,16 @@ class BrowseViewModel(
         treeInitializing = true
         viewModelScope.launch(Dispatchers.IO) {
             if (_treeRoots.isNotEmpty()) return@launch
-            val localRoots = File.listRoots().filter { it.canRead() }.map { FileItem(it) }
+            val localSource = LocalSource()
+            val localRoots = File.listRoots()
+                .filter { it.canRead() }
+                .map { ViewerItem(ViewerPath.create(it), localSource) }
             _treeRoots.addAll(localRoots)
             val firstLocal = localRoots.firstOrNull()
             if (firstLocal != null) {
                 _selectedTreeItem.value = firstLocal
-                _fileStub.value = FileStubImpl(firstLocal.file).apply { refreshList(fileFilter) }
-                _filePath.value = firstLocal.path
+                _currentItem.value = firstLocal.apply { refreshList(fileFilter) }
+                _currentPath.value = firstLocal.path.raw
             }
             syncSmbTree()
             treeInitializing = false
@@ -116,86 +108,85 @@ class BrowseViewModel(
         val smbSessions = smbManager.connectedSessions
         val currentKeys = smbSessions.map { "${it.host}:${it.share}" }.toSet()
 
-        val existingSmbRoots = _treeRoots.filterIsInstance<SmbTreeItem>()
-        val toRemove = existingSmbRoots.filter { "${it.host}:${it.share}" !in currentKeys }
+        val existingSmbRoots = _treeRoots.filter { it.isSamba }
+        val toRemove = existingSmbRoots.filter {
+            val parsed = ViewerPath.parse(it.id)
+            val raw = parsed.basePath.removePrefix("//")
+            val parts = raw.split("/").filter { s -> s.isNotEmpty() }
+            val key = if (parts.size >= 2) "${parts[0]}:${parts[1]}" else ""
+            key !in currentKeys
+        }
         if (toRemove.isNotEmpty()) {
             _treeRoots.removeAll(toRemove)
-            // Reset fileStub if current view is from a disconnected share
-            val curStub = _fileStub.value
-            if (curStub is SmbFileStub) {
-                val smbKey = "${curStub.host}:${curStub.share}"
-                if (smbKey !in currentKeys) {
+            val curItem = _currentItem.value
+            if (curItem.isSamba) {
+                val parsed = ViewerPath.parse(curItem.id)
+                val raw = parsed.basePath.removePrefix("//")
+                val parts = raw.split("/").filter { s -> s.isNotEmpty() }
+                val key = if (parts.size >= 2) "${parts[0]}:${parts[1]}" else ""
+                if (key !in currentKeys) {
                     resetToFirstLocalRoot()
                 }
             }
         }
 
-        val existingKeys = _treeRoots.filterIsInstance<SmbTreeItem>()
-            .map { "${it.host}:${it.share}" }.toSet()
+        val existingKeys = _treeRoots.filter { it.isSamba }
+            .map {
+                val parsed = ViewerPath.parse(it.id)
+                val raw = parsed.basePath.removePrefix("//")
+                val parts = raw.split("/").filter { s -> s.isNotEmpty() }
+                if (parts.size >= 2) "${parts[0]}:${parts[1]}" else ""
+            }.toSet()
 
         for (session in smbSessions) {
             val key = "${session.host}:${session.share}"
             if (key !in existingKeys) {
-                _treeRoots.add(SmbTreeItem(session.host, session.share, "", session, isRoot = true))
+                val source = SambaSource(session)
+                val path = ViewerPath.create(session.host, session.share, "")
+                val item = ViewerItem(path, source)
+                _treeRoots.add(item)
             }
         }
     }
 
     private fun resetToFirstLocalRoot() {
-        val firstLocal = _treeRoots.filterIsInstance<FileItem>().firstOrNull() ?: return
+        val firstLocal = _treeRoots.firstOrNull { it.isLocal } ?: return
         _selectedTreeItem.value = firstLocal
-        _fileStub.value = FileStubImpl(firstLocal.file).apply { refreshList(fileFilter) }
-        _filePath.value = firstLocal.path
+        _currentItem.value = firstLocal.apply { refreshList(fileFilter) }
+        _currentPath.value = firstLocal.path.raw
     }
 
-    fun singleClickTreeItem(item: FileItem) {
+    fun singleClickTreeItem(item: ViewerItem) {
         if (_selectedTreeItem.value != item) {
             _selectedTreeItem.value = item
         }
-        changeFileStub(item.file)
-        changePreviewImageStub(item.file)
+        changeCurrentItem(item.path.basePath)
     }
 
-    fun doubleClickTreeItem(item: FileItem) {
+    fun doubleClickTreeItem(item: ViewerItem) {
         item.setExpanded(!item.expanded)
         if (item.expanded) {
-            item.refreshList(treeFileFilter)
+            item.refreshList(fileFilter)
+            changeCurrentItem(item.path.raw)
         }
     }
 
-    fun singleClickSmbTreeItem(item: SmbTreeItem) {
-        if (_selectedTreeItem.value != item) {
-            _selectedTreeItem.value = item
-        }
-        val smbStub = SmbFileStub.create(item.host, item.share, item.remotePath, item.session)
-        smbStub.refreshList(fileFilter)
-        _fileStub.value = smbStub
-        _filePath.value = SmbFileStub.buildSmbPath(item.host, item.share, item.remotePath)
-    }
-
-    fun doubleClickSmbTreeItem(item: SmbTreeItem) {
-        item.setExpanded(!item.expanded)
-        if (item.expanded) {
-            item.refreshList()
+    fun singleClickGridItem(item: ViewerItem) {
+        if (item.isLocal) {
+            _previewImageItem.value = item
         }
     }
 
-    fun singleClickGridItem(stub: FileStub) {
-        changePreviewImageStub(File(stub.path))
-    }
-
-    fun doubleClickGridItem(stub: FileStub) {
-        if (_fileStub.value != stub) {
-            _fileStub.value = stub.apply {
-                refreshList(fileFilter)
-            }
-            _filePath.value = stub.path
+    fun doubleClickGridItem(item: ViewerItem) {
+        if (item.isDirectory) {
+            _currentItem.value = item.apply { refreshList(fileFilter) }
+            _currentPath.value = item.path.raw
         }
     }
 
     fun changeFilePath(newPath: String) {
-        if (_filePath.value != newPath) {
-            _filePath.value = newPath
+        if (_currentPath.value != newPath) {
+            _currentPath.value = newPath
         }
     }
 
@@ -234,75 +225,55 @@ class BrowseViewModel(
     }
 
     fun goToTargetPath() {
-        goToTargetPath(_filePath.value)
+        goToTargetPath(_currentPath.value)
     }
 
     fun goToTargetPath(newPath: String) {
         if (newPath.isNotBlank()) {
-            val smbPath = SmbFileStub.parseSmbPath(newPath)
-            if (smbPath != null) {
-                val (host, share, remotePath) = smbPath
-                changeSmbFileStub(host, share, remotePath)
-            } else {
-                changeFileStub(File(newPath))
-            }
+            changeCurrentItem(newPath)
         }
     }
 
     fun goToParentPath() {
-        val curStub = _fileStub.value
-        when (curStub) {
-            is FileStubImpl -> {
-                val newFile = curStub.file.parentFile
-                if (newFile != null) {
-                    changeFileStub(newFile)
-                }
-            }
-            is SmbFileStub -> {
-                val parentPath = curStub.remotePath.substringBeforeLast("/", "")
-                if (parentPath != curStub.remotePath) {
-                    changeSmbFileStub(curStub.host, curStub.share, parentPath)
-                }
-            }
+        val curItem = _currentItem.value
+        val parentRaw = curItem.path.parentPath
+        if (parentRaw != curItem.path.raw) {
+            changeCurrentItem(parentRaw)
         }
     }
 
     fun refreshCurrent() {
-        _fileStub.value.refreshList(fileFilter)
+        _currentItem.value.refreshList(fileFilter)
     }
 
-    private fun changeFileStub(newFile: File) {
-        if (!newFile.exists() || !newFile.isDirectory) {
-            return
+    private fun changeCurrentItem(pathStr: String) {
+        val vp = ViewerPath.parse(pathStr)
+        when (vp.scheme) {
+            ViewerPath.Scheme.File -> changeFileItem(vp)
+            ViewerPath.Scheme.Samba -> changeSambaItem(vp)
         }
-        if (_fileStub.value.path == newFile.canonicalPath) {
-            return
-        }
-        _fileStub.value = FileStubImpl(newFile).apply {
-            refreshList(fileFilter)
-        }
-        _filePath.value = newFile.canonicalPath
     }
 
-    private fun changeSmbFileStub(host: String, share: String, remotePath: String) {
+    private fun changeFileItem(vp: ViewerPath) {
+        val dir = File(vp.basePath)
+        if (!dir.exists() || !dir.isDirectory) return
+        if (_currentItem.value.path.raw == vp.raw) return
+        val source = LocalSource()
+        _currentItem.value = ViewerItem(vp, source).apply { refreshList(fileFilter) }
+        _currentPath.value = vp.raw
+    }
+
+    private fun changeSambaItem(vp: ViewerPath) {
+        val raw = vp.basePath.removePrefix("//")
+        val parts = raw.split("/").filter { it.isNotEmpty() }
+        if (parts.size < 2) return
+        val host = parts[0]
+        val share = parts[1]
+        val remotePath = parts.drop(2).joinToString("/")
         val session = smbManager.getSession(host, share) ?: return
-        val stub = SmbFileStub.create(host, share, remotePath, session)
-        stub.refreshList(fileFilter)
-        _fileStub.value = stub
-        _filePath.value = SmbFileStub.buildSmbPath(host, share, remotePath)
-    }
-
-    private fun changePreviewImageStub(newFile: File) {
-        if (!newFile.exists() || !newFile.isFile) {
-            return
-        }
-        val extNames = fileTypeList.flatMap { it.extensions.toList() }
-        if (!extNames.contains(newFile.extension)) {
-            return
-        }
-        if (_previewImageStub.value.path == newFile.canonicalPath) {
-            return
-        }
-        _previewImageStub.value = FileStubImpl(newFile)
+        val source = SambaSource(session)
+        val fullPath = ViewerPath.create(host, share, remotePath)
+        _currentItem.value = ViewerItem(fullPath, source).apply { refreshList(fileFilter) }
+        _currentPath.value = fullPath.raw
     }
 }
