@@ -74,19 +74,16 @@ import com.mibcxb.viewer_gui.generated.resources.text_preview
 import com.mibcxb.widget.compose.Divider
 import com.mibcxb.widget.compose.file.FileType
 import com.mibcxb.widget.compose.file.FileTypes
-import com.mibcxb.widget.compose.file.samba.SmbFileStub
+import com.mibcxb.widget.compose.file.ViewerItem
+import com.mibcxb.widget.compose.file.ViewerPath
 import com.mibcxb.widget.compose.file.samba.SmbManager
 import com.mibcxb.widget.compose.grid.FileGridSize
 import com.mibcxb.widget.compose.grid.FileGridView
-import com.mibcxb.widget.compose.tree.FileItem
-import com.mibcxb.widget.compose.tree.SmbTreeItem
-import com.mibcxb.widget.compose.tree.TreeItem
 import com.mibcxb.widget.compose.tree.TreeView
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
 import java.io.File
-import java.nio.file.Paths
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -377,21 +374,14 @@ private fun PathRowView(vm: BrowseViewModel, modifier: Modifier = Modifier) {
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val filePath by remember { vm.filePath }
-        if (filePath.isNotBlank()) {
-            val segments = if (filePath.startsWith("//")) {
-                buildSmbPathSegments(filePath)
-            } else {
-                buildLocalPathSegments(filePath)
-            }
+        val currentPath by remember { vm.currentPath }
+        if (currentPath.isNotBlank()) {
+            val vp = ViewerPath.parse(currentPath)
+            val segments = buildPathSegments(vp)
             LazyRow(modifier = Modifier.weight(1f)) {
                 itemsIndexed(segments) { index, segment ->
                     PathSegmentView(index, segment, index == segments.lastIndex) {
-                        val newPath = if (filePath.startsWith("//")) {
-                            buildSmbPathFromSegments(segments, it)
-                        } else {
-                            segments.subList(0, it + 1).joinToString(File.separator)
-                        }
+                        val newPath = buildPathFromSegments(vp, segments, index)
                         vm.goToTargetPath(newPath)
                     }
                 }
@@ -410,38 +400,43 @@ private fun PathRowView(vm: BrowseViewModel, modifier: Modifier = Modifier) {
     }
 }
 
-private fun buildLocalPathSegments(filePath: String): List<String> {
-    val segments = mutableListOf<String>()
-    val path = Paths.get(filePath).normalize()
-    if (path.root != null) {
-        segments.add(path.root.toString())
-    }
-    if (path.nameCount > 0) {
-        path.forEach { segments.add(it.toString()) }
-    }
-    return segments
-}
-
-private fun buildSmbPathSegments(filePath: String): List<String> {
-    val segments = mutableListOf<String>()
-    val parsed = SmbFileStub.parseSmbPath(filePath)
-    if (parsed != null) {
-        val (host, share, remotePath) = parsed
-        segments.add("//$host/$share")
-        if (remotePath.isNotEmpty()) {
-            segments.addAll(remotePath.split("/").filter { it.isNotEmpty() })
+private fun buildPathSegments(vp: ViewerPath): List<String> {
+    return when (vp.scheme) {
+        ViewerPath.Scheme.File -> buildLocalPathSegments(vp.basePath)
+        ViewerPath.Scheme.Samba -> {
+            val raw = vp.basePath.removePrefix("//")
+            val parts = raw.split("/").filter { it.isNotEmpty() }
+            if (parts.size >= 2) {
+                listOf("//${parts[0]}/${parts[1]}") + parts.drop(2)
+            } else {
+                listOf(vp.basePath)
+            }
         }
     }
+}
+
+private fun buildLocalPathSegments(path: String): List<String> {
+    val segments = mutableListOf<String>()
+    val nioPath = java.nio.file.Paths.get(path).normalize()
+    if (nioPath.root != null) {
+        segments.add(nioPath.root.toString())
+    }
+    if (nioPath.nameCount > 0) {
+        nioPath.forEach { segments.add(it.toString()) }
+    }
     return segments
 }
 
-private fun buildSmbPathFromSegments(segments: List<String>, endIndex: Int): String {
-    val root = segments.first()
-    val subPaths = segments.drop(1).take(endIndex)
-    return if (subPaths.isEmpty()) {
-        root
-    } else {
-        "$root/${subPaths.joinToString("/")}"
+private fun buildPathFromSegments(vp: ViewerPath, segments: List<String>, endIndex: Int): String {
+    return when (vp.scheme) {
+        ViewerPath.Scheme.Samba -> {
+            val root = segments.first()
+            val subPaths = segments.drop(1).take(endIndex)
+            if (subPaths.isEmpty()) root else "$root/${subPaths.joinToString("/")}"
+        }
+        ViewerPath.Scheme.File -> {
+            segments.subList(0, endIndex + 1).joinToString(File.separator)
+        }
     }
 }
 
@@ -474,35 +469,18 @@ private fun ContentView(vm: BrowseViewModel, nav: NavController, modifier: Modif
             TreeView(
                 rootList = treeRoots,
                 modifier = Modifier.fillMaxWidth().weight(1f),
-                onSingleClick = { item ->
-                    when (item) {
-                        is FileItem -> vm.singleClickTreeItem(item)
-                        is SmbTreeItem -> vm.singleClickSmbTreeItem(item)
-                    }
-                },
+                onSingleClick = { item -> vm.singleClickTreeItem(item) },
                 onDoubleClick = { item ->
-                    when (item) {
-                        is FileItem -> {
-                            when {
-                                FileTypes.isImage(item.fileType) -> nav.navigate(DetailScreen(item.path))
-                                FileTypes.isArchive(item.fileType) -> nav.navigate(ArchiveScreen(item.path))
-                                FileTypes.isDir(item.fileType) -> vm.doubleClickTreeItem(item)
-                            }
-                        }
-                        is SmbTreeItem -> vm.doubleClickSmbTreeItem(item)
+                    when {
+                        item.isImage -> nav.navigate(DetailScreen(item.path.raw))
+                        item.isArchive -> nav.navigate(ArchiveScreen(item.path.raw))
+                        item.isDirectory -> vm.doubleClickTreeItem(item)
                     }
                 },
                 iconLoader = { item ->
-                    when (item) {
-                        is FileItem -> {
-                            when (item.fileType) {
-                                FileType.NAN -> null
-                                FileType.DIR -> Res.drawable.ic_folder
-                                else -> Res.drawable.ic_file_image
-                            }
-                        }
-                        is SmbTreeItem -> Res.drawable.ic_folder
-                        else -> null
+                    when {
+                        item.isDirectory -> Res.drawable.ic_folder
+                        else -> Res.drawable.ic_file_image
                     }
                 }
             )
@@ -511,8 +489,8 @@ private fun ContentView(vm: BrowseViewModel, nav: NavController, modifier: Modif
         }
         Divider(appRes.dimen.dividerWidth, vertical = true)
         Column(modifier = Modifier.weight(0.75f).fillMaxHeight()) {
-            val fileStub by remember { vm.fileStub }
-            if (fileStub.exists() && fileStub.isDirectory()) {
+            val currentItem by remember { vm.currentItem }
+            if (currentItem.exists() && currentItem.isDirectory) {
                 FuncRowView(
                     vm,
                     modifier = Modifier.fillMaxWidth().height(appRes.dimen.functionHeight)
@@ -529,27 +507,23 @@ private fun ContentView(vm: BrowseViewModel, nav: NavController, modifier: Modif
                 val searchName by remember { vm.searchName }
                 val sortType by remember { vm.fileSortType }
                 FileGridView(
-                    fileStub = fileStub,
+                    item = currentItem,
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     sortType = sortType,
                     itemSize = fileGridSize,
                     onSingleClick = { vm.singleClickGridItem(it) },
                     onDoubleClick = {
                         when {
-                            FileTypes.isImage(it.fileType) -> {
-                                nav.navigate(DetailScreen(it.path))
-                            }
-                            FileTypes.isArchive(it.fileType) -> {
-                                nav.navigate(ArchiveScreen(it.path))
-                            }
-                            FileTypes.isDir(it.fileType) -> vm.doubleClickGridItem(it)
+                            it.isImage -> nav.navigate(DetailScreen(it.path.raw))
+                            it.isArchive -> nav.navigate(ArchiveScreen(it.path.raw))
+                            it.isDirectory -> vm.doubleClickGridItem(it)
                         }
                     },
                     cacheLoader = { vm.getThumbBuffer(it) },
                     errorLoader = {
                         when {
-                            it.isDirectory() -> Res.drawable.ic_folder
-                            it.isArchive() -> Res.drawable.ic_file_archive
+                            it.isDirectory -> Res.drawable.ic_folder
+                            it.isArchive -> Res.drawable.ic_file_archive
                             else -> Res.drawable.ic_file_image
                         }
                     },
@@ -570,7 +544,7 @@ private fun ContentView(vm: BrowseViewModel, nav: NavController, modifier: Modif
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.padding(end = appRes.dimen.paddingPanel).fillMaxWidth().height(24.dp)
                 ) {
-                    Text(stringResource(Res.string.text_files, fileStub.subCount))
+                    Text(stringResource(Res.string.text_files, currentItem.children.size))
                 }
             }
         }
@@ -587,10 +561,10 @@ private fun Preview(vm: BrowseViewModel, modifier: Modifier = Modifier) {
                 .wrapContentSize()
         )
         Box(modifier = Modifier.fillMaxWidth().weight(1.0f).background(appRes.color.imagePreviewBackground)) {
-            val previewImageStub by remember { vm.previewImageStub }
-            if (previewImageStub.exists() && previewImageStub.isFile()) {
+            val previewImageItem by remember { vm.previewImageItem }
+            if (previewImageItem.isFile) {
                 AsyncImage(
-                    model = previewImageStub.path,
+                    model = previewImageItem.path.raw,
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize()
